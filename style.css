@@ -1,0 +1,32 @@
+html, body {
+  background-color: gray;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+
+div.a {
+  background-color: lightcoral;
+  color: darkblue;
+  width: 60%;
+  margin: auto auto 10px auto;
+  padding:4px;
+  border: 1px solid darkblue;
+}
+
+div.b {
+  background-color: lightblue;
+  color: darkblue;
+  width: 60%;
+  margin: auto auto 10px auto;
+  padding: 4px;
+  border: 1px darkblue;
+}
+
+
+canvas {
+  display: block;
+  color: blue;
+  background-color: black;
+  border:1px solid #000000;
+}

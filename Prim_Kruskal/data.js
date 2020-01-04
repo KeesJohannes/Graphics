@@ -58,141 +58,106 @@ function fixRandBetween(a,b) {
     return Math.floor(Math.random()*(b-a))+a;
 }
 
+// greatest common divisor
+function gcd(a,b) {
+    let a1 = Math.floor(Math.abs(a));
+    let b1 = Math.floor(Math.abs(b));
+    if (a1==0) return b1
+    if (b1==0) return a1;
+    if (a1>b1) {
+        a1 = a1%b1
+        if (a1==0) return b1
+    } else if (a1<b1) {
+        b1 = b1%a1;
+        if (b1==0) return a1;
+    } else return a1;
+    return gcd(a1,b1);
+}
+
+function IsVisible(sc,sr,dc,dr,cols,rows,nodes) {
+    let f = gcd(dc,dr)
+    let ddc = dc/f;
+    let ddr = dr/f;
+    for (let lr=1;lr<=f;lr++) {
+        let oc = ddc*lr+sc
+        let or = ddr*lr+sr
+        if (oc<0 || oc>=cols || or<0 || or>=rows) return -1;
+        let ind = nodes.findIndex(n=>n.row==or && n.col==oc);
+        if (ind>=0) { // node gevonden.
+            return lr==f?ind:-1; // gevonden op de gezochte plaats;
+        }
+    }
+    return -1; // geen node gevonden
+}
+
 function GenNw() {
     let edges = [];
-    let rows = 4;
-    let cols = 4;
-    let occu = new Array(rows);
-    for (let c=0;c<cols;c++) {
-        occu[c] = new Array(rows);
-        occu[c].fill(0);
-    }
-    let htel = new Array(rows*cols);
-    for (let i=0;i<htel.length;i++) htel[i]=i;
-    let aantal = fixRandBetween(4,9);
+    let rows = 5;
+    let cols = 5;
+    let aantal = fixRandBetween(5,10); // aantal te genereren nodes
     let nodes = new Array(aantal);
-    let groeps = new Array(aantal);
-    groeps.fill(0);
+    let htel = new Array(rows*cols);
+    for (let i=0;i<htel.length;i++) {
+        htel[i]=i; // houdt bij welke cellen nog vrij zijn.
+    }
+    // genereer de nodes
     for (let i=0;i<aantal;i++) {
         let w = fixRandBetween(0,htel.length);
         let cel = htel[w];
-        nodes[i] = {id:i,col:cel%cols,row:Math.floor(cel/cols),groep:i};
-        occu[nodes[i].col][nodes[i].row] = 1; // occupied by node
-        groeps[i]++;
+        nodes[i] = {id:i,col:cel%cols,row:Math.floor(cel/cols),mst:0};
         htel.splice(w,1)
     }
-    aantal = fixRandBetween(aantal,aantal+4);
+    // genereer deedges. Eerst de edges bepalen die niet door nodes lopen. 
+    let h_edges = []; // bevat straks alle mogelijke edges.
     nodes.forEach(no=>{
         let id1 = no.id;
-        let c = no.col;
-        let r = no.row;
-        let nb = []; // de directe buren
-        let se = edges.sort(e=>e.n1);
-
-        for (let [dc,dr] of [[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,1],
-                             [1,2],[1,-2],[-1,2],[-1,-2],
-                             [2,1],[-2,1],[2,-1],[-2,-1]]) {
-            c = no.col+dc;
-            r = no.row+dr;
-            while (c>=0 && c<cols && r>=0 && r<rows) {
-                let ind =  nodes.findIndex(n=>n.col==c && n.row==r);
-                let ind2 = edges.findIndex(e=>(e.id1==id1 && e.id2==ind) ||
-                                              (e.id1==ind && e.id2==id1));
-                let occupied = false
-//                if (ind>=0) {
-//                    occupied = isOccupied(nodes[id1],nodes[ind],cols,rows,occu);
-                //    occupied = false;
-//                }
-                //console.log(occupied)
-//                occupied = Bezet(nodes[id1],nodes[id2],cols,rows);
-                if (ind>=0 && ind2<0 && !occupied) {
-                    nb.push(ind);
-                    break;
-                } else {
-                    c += dc;
-                    r += dr;
-                }
-            }
-        }
-        if (nb.length>0) {
-            let nbind = fixRandBetween(0,nb.length-1);
-            if (nbind>=0) {
-                let g1 = no.groep;
-                let id2 = nb[nbind] 
-                let g2 = nodes[id2].groep;
-                if (g1!=g2) {
-                    nodes.filter(n=>n.groep==g2).forEach(n=>{
-                        n.groep = g1;
-                        groeps[g1]++;
-                        groeps[g2]--;
-                    })
-                }
-                let id = edges.length;
-//                occupy(nodes[id1],nodes[id2],cols,rows,occu)
-                edges[id] = {id,id1,id2,cost:fixRandBetween(1,8)}
-            }
-        }
-
-    });
-    
-    return [nodes,edges];
-
-}
-/*
-function Bezet(n1,n2,cols,rows) {
-    let p1 = {x:n1.col,y:n1.row}
-    let p2 = {x:n2.col,y:n2.row}
-    if (p1.x==p2.x) {
-        let can = edges.filter(e=>nodes[e.id1].col==p1.x || nodes[e.id2].col==p1.x)
-                    .map(e=>{
-                        if (nodes[e.id1].col==p1.x) {
-                            return {id:e.id,c:nodes[e.id1].col,r}
+        for (let dc=-cols+1;dc<cols;dc++) {
+            for (let dr=-rows+1;dr<rows;dr++) {
+                if (!(dc==0 && dr==0)) {
+                    let ind = IsVisible(no.col,no.row,dc,dr,cols,rows,nodes); // is de node bereikbaar
+                    if (ind>=0) { // ja
+                        let ind2 = h_edges.findIndex(e=>(e.id1==id1 && e.id2==ind) ||
+                            (e.id1==ind && e.id2==id1));
+                        if (ind2<0) { // nog geen edge tussen de nodes id1 en ind
+                            id = h_edges.length;
+                            h_edges[id] = {id,id1,id2:nodes[ind].id,mst:false,cost:fixRandBetween(1,10)}
                         }
-                                         })
-    } else if (p1.y==p2.y) {
-
-    } else
-        return false;
-};
-*/
-function isOccupied(n1,n2,cols,rows,occu) {
-    let p1 = {x:n1.col%cols,y:Math.floor(n1.row/rows)}
-    let p2 = {x:n2.col%cols,y:Math.floor(n2.row/rows)}
-    let xstart = Math.min(p1.x,p2.x);
-    let xeind = Math.max(p1.x,p2.x);
-    let dx = Math.max(xeind-xstart,1);
-    let ystart = Math.min(p1.y,p2.y);
-    let yeind = Math.max(p1.y,p2.y);
-    let dy = Math.max(yeind-ystart,1);
-    for (let c=xstart;c<=xeind;c+=dx) {
-        for (let r=ystart;r<=yeind;r+=dy) {
-            if (!((c==xstart && r==ystart) || (c==xeind && r==yeind))) {
-                if (occu[c][r] != 0) {// edge or vertex 
-                    return true; // crossing
+                    }
                 }
             }
         }
-    }
-    return false
-}
-
-function occupy(n1,n2,cols,rows,occu) {
-    let p1 = {x:n1.col%cols,y:Math.floor(n1.row/rows)}
-    let p2 = {x:n2.col%cols,y:Math.floor(n2.row/rows)}
-    let xstart = Math.min(p1.x,p2.x);
-    let xeind = Math.max(p1.x,p2.x);
-    let dx = Math.max(xeind-xstart,1);
-    let ystart = Math.min(p1.y,p2.y);
-    let yeind = Math.max(p1.y,p2.y);
-    let dy = Math.max(yeind-ystart,1);
-    for (let c=xstart;c<=xeind;c+=dx) {
-        for (let r=ystart;r<=yeind;r+=dy) {
-            if ((c==xstart && r==ystart) || (c==xeind && r==yeind)) {
-                occu[c][r] = 1; // vertex
-            } else {
-                occu[c][r] = 2; // edge
-            }
+    })
+//    console.log("h_e",h_edges.length)
+    // selecteer de edges die een spanning tree opleveren. de set s houdt bij welke nodes nog
+    // nieet in de mst zitten
+    let s = new Set();
+    nodes.forEach(n=>s.add(n.id));
+    let n = nodes[0];
+    s.delete(n.id);
+    while (s.size>0) {
+        let n_edges = h_edges.filter(e=>(s.has(e.id1) && !s.has(e.id2)) || 
+                                        (s.has(e.id2) && !s.has(e.id1)));
+        if (n_edges.length==0) {
+            console.log("klopt niet",s,h_edges[0].id2,s.has(h_edges[0].id2))
+            return;
         }
+        let nedg = fixRandBetween(0,n_edges.length);
+        let ed = n_edges[nedg];
+        ed.mst = true;
+        s.delete(ed.id1);
+        s.delete(ed.id2);
     }
+    n_edges = h_edges.filter(e=>!e.mst)
+    aantal = 2; // 2 additionele edges (wanneer mogelijk)
+    while (n_edges.length>0 && aantal>0) {
+        let nedg = fixRandBetween(0,n_edges.length);
+        let ed = n_edges[nedg];
+        ed.mst = true;
+        n_edges = h_edges.filter(e=>!e.mst)
+        aantal--;
+    }
+    edges = h_edges.filter(e=>e.mst)
+    edges.forEach((e,ind)=>e.id=ind);
+    return [nodes,edges];
 }
 

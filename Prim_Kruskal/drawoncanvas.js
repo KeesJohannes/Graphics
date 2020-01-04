@@ -5,6 +5,7 @@ let cols;
 let pictWidth;
 let pictHeight;
 let but0 = {x:0,y:30,w:100,h:40}
+let but1 = {x:340,y:30,w:40,h:40}
 
 function ctox(c) {
     return xdif/2+c*xdif;
@@ -50,6 +51,11 @@ function drawNw() {
     } else {
         fillText("PRIM",myCanvas.width/2,50)
     }
+    but1.x = myCanvas.width-but1.w-30
+    ctx.strokeRect(but1.x,but1.y,but1.w,but1.h)
+    font("12px Arial")
+    fillText("Rand",but1.x+but1.w/2,but1.y+but1.h/2)
+    font("18px Arial")
     fill("#FFFFFF")
     lineWidth(1);
     edges.forEach(e=>{
@@ -139,6 +145,9 @@ function drawKruskalInfo() {
         }
     });
 
+    let tc = hsedges.filter(e=>e.sp).reduce((a,e)=>a+e.cost,0);
+    fillText(`Total cost:${tc}`,20,600-3*dy)
+
     let longText = "Click anywhere in the picture:"
     fillText(longText,20,600-dy)
     longText = "The program chooses the first edge which connect vertices from different groups"
@@ -196,6 +205,9 @@ function drawPrimInfo() {
     t = mstnodes.join(", ")
     textAlign("left")
     fillText("In mst: "+t,x,y);
+
+    let tc = hsedges.filter(e=>e.sp).reduce((a,e)=>a+e.cost,0);
+    fillText(`Total cost:${tc}`,20,600-3*dy)
 
     let longText = "Click anywhere in the picture:"
     fillText(longText,20,600-dy)
