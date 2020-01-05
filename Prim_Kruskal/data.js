@@ -107,12 +107,16 @@ function GenNw() {
         nodes[i] = {id:i,col:cel%cols,row:Math.floor(cel/cols),mst:0};
         htel.splice(w,1)
     }
-    // genereer deedges. Eerst de edges bepalen die niet door nodes lopen. 
+    // genereer de edges. Eerst de edges bepalen die niet door nodes lopen. 
+    let diffcols = cols-3;
+    let diffrows = rows-3;
     let h_edges = []; // bevat straks alle mogelijke edges.
     nodes.forEach(no=>{
         let id1 = no.id;
-        for (let dc=-cols+1;dc<cols;dc++) {
-            for (let dr=-rows+1;dr<rows;dr++) {
+        for (let oc=Math.max(0,no.col-diffcols);oc<Math.min(cols,no.col+diffcols);oc++) {
+            let dc = oc-no.col;
+            for (let or=Math.max(0,no.row-diffrows);or<Math.min(rows,no.row+diffrows);or++) {
+                let dr = or-no.row;
                 if (!(dc==0 && dr==0)) {
                     let ind = IsVisible(no.col,no.row,dc,dr,cols,rows,nodes); // is de node bereikbaar
                     if (ind>=0) { // ja
@@ -127,25 +131,36 @@ function GenNw() {
             }
         }
     })
-//    console.log("h_e",h_edges.length)
-    // selecteer de edges die een spanning tree opleveren. de set s houdt bij welke nodes nog
-    // nieet in de mst zitten
+    // Selecteer de edges die een spanning tree opleveren. 
+    // De set s houdt bij welke nodes nog niet in de mst zitten
+    // Wanneer de set s leeg is, maar er zijn nog nodes niet in de mst, 
+    // worden er edges bijgemaakt die nu een grotere afstand moeten overbruggen
+    // in vergelijking met de hierboven gegenereerde.  
     let s = new Set();
     nodes.forEach(n=>s.add(n.id));
     let n = nodes[0];
     s.delete(n.id);
-    while (s.size>0) {
+    count = s.size;
+    while (s.size>0 && count>0) {
         let n_edges = h_edges.filter(e=>(s.has(e.id1) && !s.has(e.id2)) || 
                                         (s.has(e.id2) && !s.has(e.id1)));
         if (n_edges.length==0) {
-            console.log("klopt niet",s,h_edges[0].id2,s.has(h_edges[0].id2))
-            return;
+            let ss = [...s];
+            let e = MakeEdge(ss,nodes);
+            if (e==undefined) {
+                console.log("lukt niet")
+                break;
+            }
+            e.id = h_edges.length;
+            h_edges[e.id] = e;
+            n_edges = [e];     
         }
         let nedg = fixRandBetween(0,n_edges.length);
         let ed = n_edges[nedg];
         ed.mst = true;
         s.delete(ed.id1);
         s.delete(ed.id2);
+        count--
     }
     n_edges = h_edges.filter(e=>!e.mst)
     aantal = 2; // 2 additionele edges (wanneer mogelijk)
@@ -161,3 +176,23 @@ function GenNw() {
     return [nodes,edges];
 }
 
+function MakeEdge(niet,bestaande) {
+    let n1 = bestaande[niet[0]];
+    let nsel = bestaande.filter(n=>!niet.includes(n.id));
+    if (nsel.length>0) {
+        let minafstand = Infinity;
+        let n2 = null;
+        for (let i=0;i<nsel.length;i++) {
+            let nod = nsel[i];
+            let afstand = Math.abs(n1.col-nod.col)+Math.abs(n1.row-nod.row);
+            if (afstand<minafstand) {
+                minafstand = afstand;
+                n2 = nod;
+            }
+        }
+        if (n2!=null) {
+            return {id:-1,id1:n1.id,id2:n2.id,mst:false,cost:fixRandBetween(1,10)}           
+        }
+    }
+    return null;
+}

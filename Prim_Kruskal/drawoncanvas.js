@@ -156,6 +156,8 @@ function drawKruskalInfo() {
     font("14px Arial")
     longText = "Click on KRUSKAL to get PRIM"
     fillText(longText,20,700-dy)
+    longText = "Click on Rand to get a randomly generated Network"
+    fillText(longText,350,700-dy)
 
 }
 
@@ -220,5 +222,7 @@ function drawPrimInfo() {
     font("14px Arial")
     longText = "Click on PRIM to get KRUSKAL"
     fillText(longText,20,700-dy)
+    longText = "Click on Rand to get a randomly generated Network"
+    fillText(longText,350,700-dy)
 
 }
