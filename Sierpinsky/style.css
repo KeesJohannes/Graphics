@@ -8,5 +8,40 @@ canvas {
   display: block;
   color: blue;
   background-color: black;
-  border:1px solid #000000;
+  border:0px solid #000000;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 60% auto;
+  grid-column-gap: 10px;
+}
+
+.grid-item  {
+  font-size: 16pt;
+  color: white;
+  padding-left: 4px;
+  padding-bottom: 10px;
+}
+
+.blauw {
+  background-color: lightblue;
+}
+
+.descrip1 {
+  background-color: lightblue;
+  text-align: center;
+  color: black;
+  font-weight: bold;
+}
+
+.descrip2 {
+  background-color: lightblue;
+  text-align: left;
+  color: black;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 14pt;
+  padding-left: 10px;
+  line-height: 60%;
 }
