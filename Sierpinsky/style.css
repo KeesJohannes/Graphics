@@ -3,10 +3,10 @@ html, body {
   padding: 0;
 }
 
+
 canvas {
   display: block;
   color: blue;
   background-color: black;
   border:1px solid #000000;
 }
-
