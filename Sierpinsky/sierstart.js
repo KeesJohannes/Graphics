@@ -77,6 +77,10 @@ function half(p1, p2) {
 
 function initCanvas() {
     myC = new Canvas();
+    myC.myCanvas.width = window.innerWidth*0.57
+    myC.myCanvas.height = window.innerHeight*0.9
+    myC.width = myC.myCanvas.clientWidth;
+    myC.height = myC.myCanvas.clientHeight;
     myC.font("20px Arial");
     myC.textAlign("center")
     myC.textBaseline("middle")

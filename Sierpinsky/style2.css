@@ -5,7 +5,7 @@ html, body {
 
 
 canvas {
-  display: block;
+  display:inline;
   color: blue;
   background-color: black;
   border:0px solid #000000;
