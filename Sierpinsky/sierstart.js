@@ -3,87 +3,70 @@ const PI = Math.PI;
 
 let event;
 let tijd = 500
+let stat = 1;
+
+let butRun = {}
+
+let adrestekst;
+let pretekst;
+let yieldorig;
 
 function OnStart() {
+let base, height;
+let rect;
 
+    adrestekst = document.getElementById("pretext");
+    pretekst = adrestekst.innerHTML.split("\n");
+    yieldorig = pretekst[4].replace("<br>","")
+    console.log(yieldorig)
+    
     initCanvas();
-    initSier();
+    [base, height] = initSier();
 
-    Sierpinsky(5,100);
+    rect = myC.myCanvas.getBoundingClientRect();
+    myC.myCanvas.addEventListener("mousedown", (e) => getMousePosition(e,rect));
 
-//    let event = setTimeout(Siernext,tijd);
+
+    Sierpinsky(base,height,4,100);
 
 }
 
-'==================================================================================='
-queue = [];
-
-function step() {
-    if (queue.length > 0) {
-        let p = queue.pop();
-        if (p.n > 0) {
-            let q = DrawInnerTriangle(p.p1, p.p2, p.p3)
-            if (p.n > 1) {
-                queue.push({ stat: 0, p1: q.p31, p2: q.p23, p3: p.p3, n: p.n - 1 })
-                queue.push({ stat: 0, p1: q.p12, p2: p.p2, p3: q.p23, n: p.n - 1 });
-                queue.push({ stat: 0, p1: p.p1, p2: q.p12, p3: q.p31, n: p.n - 1 });
-            }
-        }
+function getMousePosition(e,rect) {
+    let x = e.clientX-rect.left;
+    let y = e.clientY-rect.top;
+    if (x>=butRun.x && x<butRun.x+butRun.w && y>=butRun.y && y<butRun.y+butRun.h) {
+        stat = 1 - stat;
+        myC.font("14px Arial");
+        myC.ctx.clearRect(butRun.x,butRun.y,butRun.w, butRun.h);
+        myC.fillText(stat==0?"Run":"Stap",butRun.x+butRun.w/2,butRun.y+butRun.h/2);
+        myC.font("20px Arial");    
     } else {
-        clearInterval(event);
+        DoStap();
     }
-}
-
-function DrawSier(n) {
-    queue = [];
-    let base = myC.width * 0.8;
-    let p1 = { x: myC.width * 0.1, y: myC.height * 0.9 };
-    let p2 = { x: p1.x + base, y: p1.y }
-    let p3 = { x: (p1.x + p2.x) / 2, y: p1.y - base * Math.tan(-Math.PI * 2 / 3) / 2 };
-    myC.lineFromTo(p1, p2);
-    myC.lineFromTo(p2, p3);
-    myC.lineFromTo(p3, p1);
-    queue.push({ stat: 0, p1, p2, p3, n })
-}
-
-function SierCut(p1, p2, p3, n) {
-    if (n > 0) {
-        let p = DrawInnerTriangle(p1, p2, p3)
-        SierCut(p1, p.p12, p.p31, n - 1);
-        SierCut(p.p12, p2, p.p23, n - 1);
-        SierCut(p.p31, p.p23, p3, n - 1);
-    }
-}
-
-function DrawInnerTriangle(p1, p2, p3) {
-    let p12 = half(p1, p2);
-    let p23 = half(p2, p3);
-    let p31 = half(p3, p1);
-    myC.lineFromTo(p12, p23)
-    myC.lineFromTo(p23, p31);
-    myC.lineFromTo(p31, p12);
-    return { p12, p23, p31 }
-}
-
-function initSier() {
-    myC.stroke("#FF0000");
-    myC.lineWidth(2);
-    //    myC.lineFromTo({x:0,y:0},{x:200,y:200})
-}
-
-function half(p1, p2) {
-    return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }
 }
 
 function initCanvas() {
     myC = new Canvas();
-    myC.myCanvas.width = window.innerWidth*0.57
-    myC.myCanvas.height = window.innerHeight*0.9
+    if (window.innerWidth<window.innerHeight) {
+        myC.myCanvas.width = window.innerHeight*0.7
+        myC.myCanvas.height = window.innerWidth*0.5
+    } else {
+        myC.myCanvas.width = window.innerWidth*0.5
+        myC.myCanvas.height = window.innerHeight*0.7    
+    }
     myC.width = myC.myCanvas.clientWidth;
     myC.height = myC.myCanvas.clientHeight;
-    myC.font("20px Arial");
+
+    butRun = {x:myC.width*9/12,y:myC.height/12,w:myC.width/12,h:myC.height/12};
+
+    myC.font("14px Arial");
     myC.textAlign("center")
     myC.textBaseline("middle")
+    myC.stroke("white")
+    
+    myC.Rect(butRun.x,butRun.y,butRun.w,butRun.h);
+    myC.fillText(stat==0?"Run":"Stap",butRun.x+butRun.w/2,butRun.y+butRun.h/2)
+    myC.font("20px Arial");
 }
 
 class Canvas {
@@ -106,6 +89,13 @@ class Canvas {
 
     lineWidth(w) {
         this.ctx.lineWidth = w;
+    }
+
+    Rect(x,y,w,h) {
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = this.strokeColor;
+        this.ctx.rect(x,y,w,h);
+        this.ctx.stroke();
     }
 
     Circle(x, y, r) {
