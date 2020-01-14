@@ -11,7 +11,7 @@ function initSier() {
     return [b,h];
 }
 
-function Sierpinsky(base,h,n,duur) {
+function Sierpinsky(base,h,n) {
     let xleft = (myC.width-base)/2;
     let ytop = (myC.height-h)/2;
     let pl = { x: xleft, y: ytop+h };
@@ -19,14 +19,12 @@ function Sierpinsky(base,h,n,duur) {
     let pt = { x: (pl.x + pr.x) / 2, y: pl.y-h}; 
     DrawTriangle(pl,pr,pt);
     DrawText(pl,pr,pt);
-    gv = CutSierpinsky(pl,pr,pt,n,"");
-    vstap = {value:null,done:false}
-    let event = setInterval(()=>{
-        if (stat==1) return; // muisclick
-        let v = gv.next();
-        if (v.done) clearInterval(event);
-    },duur)
-}
+    coord = [];
+    lastcoord = [];
+    gensier = CutSierpinsky(pl,pr,pt,n,"");
+    vstap = gensier.next();
+    return;
+} 
 
 function DoStap() {
     if (stat==0) return; // running
@@ -34,7 +32,7 @@ function DoStap() {
     if (vstap.value!=null) 
         pretekst[4] = `${yieldorig} ${vstap.value} ${lastcoord.join("")}${"<br>"}`;
     adrestekst.innerHTML = pretekst.join("\n");
-    vstap = gv.next();
+    vstap = gensier.next();
 }
 
 let coord = [];
@@ -48,9 +46,9 @@ function* CutSierpinsky(pl, pr, pt, n, waar) {
     yield n;
     DrawTriangle(plr,prt,ptl);
     if (n>1) {
-        yield* CutSierpinsky(pl, plr, ptl, n - 1, "l");
-        yield* CutSierpinsky(plr, pr, prt, n - 1, "r");
-        yield* CutSierpinsky(ptl, prt, pt, n - 1, "t");
+        yield* CutSierpinsky(pl, plr, ptl, n - 1, "L");
+        yield* CutSierpinsky(plr, pr, prt, n - 1, "R");
+        yield* CutSierpinsky(ptl, prt, pt, n - 1, "T");
     }
     let x = coord.pop();
 }
@@ -62,9 +60,9 @@ function DrawTriangle(pl,pr,pt) {
 }
 
 function DrawText(pl,pr,pt) {
-    myC.fillText("p1",pl.x-15,pl.y);
-    myC.fillText("p2",pr.x+15,pr.y);
-    myC.fillText("p3",pt.x,pt.y-10);
+    myC.fillText("L",pl.x-15,pl.y);
+    myC.fillText("R",pr.x+15,pr.y);
+    myC.fillText("T",pt.x,pt.y-10);
 }
 
 function halfbetween(p1, p2) {

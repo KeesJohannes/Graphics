@@ -2,7 +2,7 @@
 <html>
 
 <head>
-
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" type="text/css" href="stylesier.css">
   <meta charset="utf-8">
 </head>
@@ -18,16 +18,16 @@
     </div>
     <div class="descrip2"  >
       <p>Driving force: recursive generator function</p>
-      <pre id="pretext">function* CutSierpinsky(p1,p2,p3,n) {<br>
-  let p12 = halfbetween(p1,p2);<br>
-  let p23 = halfbetween(p2,p3);<br>
-  let p31 = halfbetween(p3,p1);<br>
+      <pre id="pretext">function* CutSierpinsky(pl,pr,pt,n) {<br>
+  let plr = halfbetween(pl,pr);<br>
+  let prt = halfbetween(pr,pt);<br>
+  let ptl = halfbetween(pt,pl);<br>
   yield n; // <br>
-  DrawTriangle(p12,p23,p31);<br>
+  DrawTriangle(plr,prt,ptl);<br>
   if (n>1) {<br>
-    yield* CutSierpinsky(p1,p12,p31,n-1);<br>
-    yield* CutSierpinsky(p12,p2,p23,n-1);<br>
-    yield* CutSierpinsky(p31,p23,p3,n-1);<br>
+    yield* CutSierpinsky(pl,plr,ptl,n-1);<br>
+    yield* CutSierpinsky(plr,pr,prt,n-1);<br>
+    yield* CutSierpinsky(ptl,prt,pt,n-1);<br>
   }<br>
 }<br>
     </pre>

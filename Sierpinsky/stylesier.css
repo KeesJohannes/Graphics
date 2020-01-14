@@ -28,15 +28,15 @@ canvas {
   font-weight: bold;
   font-size: 14pt;
   padding-left: 10px;
-  padding-right: 20px;
+  padding-right: 10px;
   line-height: 60%;
 }
 
 .flex-container {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  flex: 0 1 auto;
+  justify-content: center;
+ /* flex: 1 1 auto; */
 }
 
 .flex-container > div {
