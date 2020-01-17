@@ -71,6 +71,7 @@ function initCanvas() {
     posSpinner = {x:butRst.x,y:posSlider.y,w:butRst.w,h:butRun.h}
     posTxt2 = {x:gw*30,y:posSpinner.y+posSpinner.h/2};
     butHlp = {x:gw*37,y:butRun.y,w:gw*2,h:gh*2};
+    freeArea = {x:butRun.x-gh,y:0,w:gw*40-butRun.x+gw,h:posSlider.y+posSlider.h+gh};
 
 
     DrawCanvas();
@@ -115,25 +116,29 @@ function DrawCanvas() {
 function getMousePosition(e,rect,action) {
     let x = e.clientX-rect.left;
     let y = e.clientY-rect.top;
-    if (x>=butRun.x && x<butRun.x+butRun.w && y>=butRun.y && y<butRun.y+butRun.h && action=="d") {
-        stat = 1 - stat;
-        initStapRun();
-    } else if (x>=butRst.x && x<butRst.x+butRst.w && y>=butRst.y && y<butRst.y+butRst.h && action=="d") {
-        stat = 1;
-        initStapRun();
-        myC.clear();
-        depth = mySpinner.getValue();
-        DrawCanvas();
-    } else if (x>=butHlp.x && x<butHlp.x+butHlp.w && y>=butHlp.y && y<butHlp.y+butHlp.h && action=="d") {
-        modal.style.display = "block";
-    } else if (x>=mySlider.x && x<mySlider.x+mySlider.w && y>=mySlider.y && y<mySlider.y+mySlider.h) {
-        mySlider.MouseClick(x,y,action) 
-        if (action=="u") {
-            speed = mySlider.getValue();
-            duur = 1000/speed;
+    if (x>=freeArea.x && x<=freeArea.x+freeArea.w && y>=freeArea.y && y<=freeArea.y+freeArea.h) {
+        if (action=="d") {
+            if (x>=butRun.x && x<butRun.x+butRun.w && y>=butRun.y && y<butRun.y+butRun.h) {
+                stat = 1 - stat;
+                initStapRun();
+            } else if (x>=butRst.x && x<butRst.x+butRst.w && y>=butRst.y && y<butRst.y+butRst.h) {
+                stat = 1;
+                initStapRun();
+                myC.clear();
+                depth = mySpinner.getValue();
+                DrawCanvas();
+            } else if (x>=butHlp.x && x<butHlp.x+butHlp.w && y>=butHlp.y && y<butHlp.y+butHlp.h) {
+                modal.style.display = "block";
+            } else if (x>=mySpinner.x && x<mySpinner.x+mySpinner.w && y>=mySpinner.y && y<mySpinner.y+mySpinner.h) {
+                mySpinner.mouseclick(x,y);
+            }
+        } else if (x>=mySlider.x && x<mySlider.x+mySlider.w && y>=mySlider.y && y<mySlider.y+mySlider.h) {
+            mySlider.MouseClick(x,y,action) 
+            if (action=="u") {
+                speed = mySlider.getValue();
+                duur = 1000/speed;
+            }
         }
-    } else if (action=="d" && x>=mySpinner.x && x<mySpinner.x+mySpinner.w && y>=mySpinner.y && y<mySpinner.y+mySpinner.h) {
-        mySpinner.mouseclick(x,y);
     } else if (action=="d") {
         DoStap();
     }
