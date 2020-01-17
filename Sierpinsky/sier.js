@@ -31,15 +31,26 @@ function DoStap() {
     if (vstap.done) return;
     if (vstap.value!=null) 
         pretekst[4] = `${yieldorig} ${vstap.value} ${lastcoord.join("")}${"<br>"}`;
+        for (let i=0;i<3;i++) {
+            pretekst[7+i] = rout[i] + origpretekst[i].substring(rout[i].length);
+        }
     adrestekst.innerHTML = pretekst.join("\n");
     vstap = gensier.next();
 }
 
 let coord = [];
 let lastcoord = [];
+let rout = [];
 function* CutSierpinsky(pl, pr, pt, n, waar) {
     coord.push(waar);
     lastcoord = coord.slice();
+    for (let i=0;i<3;i++) {
+        rout[i] = "";
+    }
+    for (let char of coord) {
+        let i = (char=="L"?0:(char=="R"?1:char=="T"?2:" "));
+        rout[i] += ">";
+    }
     let plr = halfbetween(pl, pr);
     let prt = halfbetween(pr, pt);
     let ptl = halfbetween(pt, pl);

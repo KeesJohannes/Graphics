@@ -10,26 +10,50 @@
 <body onload="OnStart()">
   <script defer language="javascript" type="text/javascript" src="sierstart.js"></script>
   <script defer language="javascript" type="text/javascript" src="sier.js"></script>
+  <script defer language="javascript" type="text/javascript" src="canvas.js"></script>
+  <script defer language="javascript" type="text/javascript" src="slider.js"></script>
+  <script defer language="javascript" type="text/javascript" src="spinner.js"></script>
+
+  <div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>
+    The Sierpinsky triangle is drawn by executing the recursive function<br>
+    There are two modes of operation: <em>manual</em> and <em>automatic</em>.<br><br>
+    In <em>manual</em> mode you can click anywhere on the screen to step through the function.<br>
+    In <em>automatic</em> mode the computer will do it for you.<br><br>
+    The button <em>"Run/Stop"</em> switches between the two operation modes.<br><br>
+    The <em>speed</em> slider let you change the running speed for the automatic mode: 
+    click <em>"Stop"</em>, then change the speed then click the <em>"Run"</em> button.<br><br>
+    The <em>"depth"</em> value defines the number of recursions the program will go through.<br>
+    The minimum value is 1, the maximum value is 7.<br>
+    It is activated by a click on the button <em>"Restart"</em>. <br><br>
+    In <em>manual</em> mode the programm gives an indication at which level the programm is. <br> 
+    The letters L, R and T indicate the left, right or top part of the diagram.
+     </p>
+    </div>
+  </div>
 
   <div class="flex-container">
     <div class="descrip1">
-      <p>Sierpinsky drawing</p>
+      <p style="text-align:center;">Sierpinsky drawing</p>
       <canvas id="myCanvas" ></canvas>
     </div>
     <div class="descrip2"  >
       <p>Driving force: recursive generator function</p>
       <pre id="pretext">function* CutSierpinsky(pl,pr,pt,n) {<br>
-  let plr = halfbetween(pl,pr);<br>
-  let prt = halfbetween(pr,pt);<br>
-  let ptl = halfbetween(pt,pl);<br>
-  yield n; // <br>
-  DrawTriangle(plr,prt,ptl);<br>
-  if (n>1) {<br>
-    yield* CutSierpinsky(pl,plr,ptl,n-1);<br>
-    yield* CutSierpinsky(plr,pr,prt,n-1);<br>
-    yield* CutSierpinsky(ptl,prt,pt,n-1);<br>
+    let plr = halfbetween(pl,pr);<br>
+    let prt = halfbetween(pr,pt);<br>
+    let ptl = halfbetween(pt,pl);<br>
+    yield n; // <br>
+    DrawTriangle(plr,prt,ptl);<br>
+    if (n>1) {<br>
+      yield* CutSierpinsky(pl,plr,ptl,n-1);<br>
+      yield* CutSierpinsky(plr,pr,prt,n-1);<br>
+      yield* CutSierpinsky(ptl,prt,pt,n-1);<br>
+    }<br>
   }<br>
-}<br>
     </pre>
     </div>
   </div>

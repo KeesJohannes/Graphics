@@ -8,12 +8,24 @@ let tijd = 500
 let stat = 1;
 let speed = 1;
 let duur = 1000/speed;
+let depth = 4;
 
-let butRun = {}
-let slSpeed = {};
+let gw = 0;
+let gh = 0;
+
+let butRun = {};
+let butRst = {};
+let butHlp = {};
+let posSlider = {};
+let posTxt1 = {}; 
+let posSpinner = {};
+let posTxt2 = {};
+
+let modal = null;
 
 let adrestekst;
 let pretekst = [];
+let origpretekst = [];
 let yieldorig;
 
 function OnStart() {
@@ -22,77 +34,18 @@ let rect;
     adrestekst = document.getElementById("pretext");
     pretekst = adrestekst.innerHTML.split("\n");
     yieldorig = pretekst[4].replace("<br>","")
+    for (let i=0;i<3;i++) {
+        origpretekst[i] = pretekst[7+i];
+    }
     
+    modal = initPopup();
+
     initCanvas();
 
     rect = myC.myCanvas.getBoundingClientRect();
     myC.myCanvas.addEventListener("mousedown", (e) => getMousePosition(e,rect,"d"));
     myC.myCanvas.addEventListener("mouseup", (e) => getMousePosition(e,rect,"u"));
     myC.myCanvas.addEventListener("mousemove", (e) => getMousePosition(e,rect,"m"));
-
-    [base, height] = initSier();
-    Sierpinsky(base,height,4);
-}
-
-function StartTimer() {
-    event = setInterval(()=>{ 
-        let v = gensier.next();
-        if (v.done) clearInterval(event);
-    },duur)
-}
-
-function initStapRun() {
-    if (stat==0) { // running
-        StartTimer();
-    } else { // mouseclick
-        clearInterval(event);
-    }
-    myC.font("14px Arial");
-    myC.ctx.clearRect(butRun.x+1,butRun.y+1,butRun.w-2, butRun.h-2);
-    myC.fillText(stat==0?"Run":"Stap",butRun.x+butRun.w/2,butRun.y+butRun.h/2);
-    myC.font("20px Arial");
-}
-
-function getMousePosition(e,rect,action) {
-    let x = e.clientX-rect.left;
-    let y = e.clientY-rect.top;
-    if (x>=butRun.x && x<butRun.x+butRun.w && y>=butRun.y && y<butRun.y+butRun.h && action=="d") {
-        stat = 1 - stat;
-        initStapRun();
-    } else if (x>=butRst.x && x<butRst.x+butRst.w && y>=butRst.y && y<butRst.y+butRst.h && action=="d") {
-        stat = 1;
-        initStapRun();
-        myC.clear();
-        DrawCanvas();
-    } else if (x>=slSpeed.x && x<slSpeed.x+slSpeed.w && y>=slSpeed.y && y<slSpeed.y+slSpeed.h) {
-        mySlider.MouseClick(x,y,action)    
-    } else if (action=="d") {
-        DoStap();
-    }
-}
-
-function DrawCanvas() {
-    myC.lineWidth(1);
-    myC.font("14px Arial");
-    myC.textAlign("center")
-    myC.textBaseline("middle")
-    myC.stroke("white")
-    
-    // Step/Run button
-    myC.Rect(butRun.x,butRun.y,butRun.w,butRun.h);
-    myC.fillText(stat==0?"Run":"Stap",butRun.x+butRun.w/2,butRun.y+butRun.h/2)
-    // Restart button
-    myC.Rect(butRst.x,butRst.y,butRst.w,butRst.h);
-    myC.fillText("Restart",butRst.x+butRst.w/2,butRst.y+butRst.h/2)
-    
-    myC.font("16px Arial");
-
-    mySlider = new slider(myC,myC.width*10.5/12,butRun.y,myC.width/18,myC.height*2/12,1,10,speed);
-    slSpeed = {x:mySlider.x,y:mySlider.y,w:mySlider.w,h:mySlider.h};
-    mySlider.draw();
-
-    [base,height] = initSier()
-    Sierpinsky(base,height,4);
 
 }
 
@@ -108,196 +61,127 @@ function initCanvas() {
     myC.width = myC.myCanvas.clientWidth;
     myC.height = myC.myCanvas.clientHeight;
 
-    butRun = {x:myC.width*9/12,y:myC.height*2/12,w:myC.width/12,h:myC.height/12};
-    butRst = {x:myC.width*9/12,y:myC.height*1/12,w:myC.width*2/12,h:myC.height*0.8/12};
+    gw = myC.width/40;
+    gh = myC.height/40;
+
+    butRun = {x:gw*28,y:gh*1,w:gw*3,h:gh*2};
+    butRst = {x:gw*32,y:butRun.y,w:gw*4,h:butRun.h};
+    posSlider = {x:gw*37,y:butRun.y+butRun.h+gh,w:gw*2,h:gh*7};
+    posTxt1 = {x:gw*35,y:posSlider.y+posSlider.h+25};
+    posSpinner = {x:butRst.x,y:posSlider.y,w:butRst.w,h:butRun.h}
+    posTxt2 = {x:gw*30,y:posSpinner.y+posSpinner.h/2};
+    butHlp = {x:gw*37,y:butRun.y,w:gw*2,h:gh*2};
+
 
     DrawCanvas();
     
 }
 
-class slider {
-    constructor(myCanvas,x,y,w,h,mi,ma,va) {
-        this.canvas = myCanvas;
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-        this.mi = mi;
-        this.ma = ma;
-        this.posma = this.h/15;
-        this.posmi = this.h-this.h/15;
-        this.pos = this.posmi;
-        this.mousestat = 0; // geen mousedown geweest
-        this.handle = { // origin is x,y of slider
-            x:this.w/5,y:this.pos-this.h/60,
-            w:this.w*3/5,h:this.h/30}
-        this.display = { // origin is x,y of slider
-            x:this.handle.x,
-            y:this.posma-this.handle.h/2,
-            w:this.handle.w,
-            h:this.posmi-this.posma+this.handle.h}
-        this.handlew = this.w*3/5;
-        this.handleh = this.h/30;
-        this.setValue(va);
-    }
+function DrawCanvas() {
+    myC.lineWidth(1);
+    myC.font("14px Arial");
+    myC.textAlign("center")
+    myC.textBaseline("middle")
+    myC.stroke("white")
+    
+    // Step/Run button
+    myC.Rect(butRun.x,butRun.y,butRun.w,butRun.h);
+    myC.fillText(stat==1?"Run":"Stop",butRun.x+butRun.w/2,butRun.y+butRun.h/2)
+    // Restart button
+    myC.Rect(butRst.x,butRst.y,butRst.w,butRst.h);
+    myC.fillText("Restart",butRst.x+butRst.w/2,butRst.y+butRst.h/2);
+    // Help button
+    myC.Rect(butHlp.x,butHlp.y,butHlp.w,butHlp.h);
+    myC.fillText("?",butHlp.x+butHlp.w/2,butHlp.y+butHlp.h/2);
+    
+    myC.font("16px Arial");
 
-    MouseClick(x,y,action) {
-        if (y>=this.y && y<=this.y+this.h) {
-            let yr = y - this.y;
-            if (yr>=this.display.y && yr<=this.display.y+this.display.h) {
-                let p;
-                if (this.mousestat==1 && action=="m") {
-                    p = Math.min(Math.max((yr-this.posmi)/(this.posma-this.posmi),0),1);
-                    this.setValue(p*(this.ma-this.mi)+this.mi);
-                } else if (this.mousestat==0 && action=="d") {
-                    this.mousestat = 1;
-                    p = Math.min(Math.max((yr-this.posmi)/(this.posma-this.posmi),0),1);
-                    this.setValue(p*(this.ma-this.mi)+this.mi);
-                } else if (action=="u") {
-                    this.mousestat = 0;
-                    console.log(this.va,this.ma)
-                    speed = this.va;
-                    duur = 1000/speed;
-                }
-            } else this.mousestat = 0;
+    mySlider = new slider(myC,posSlider.x,posSlider.y,posSlider.w,posSlider.h,1,20,speed);
+    mySlider.draw();
+    myC.fillText("Speed:",posTxt1.x,posTxt1.y);
+
+//    mySpinner = new spinner(myC,butRun.x,myC.height*3.3/12,myC.width/18,butRun.h/2);
+    mySpinner = new spinner(myC,posSpinner.x,posSpinner.y,posSpinner.w,posSpinner.h);
+    mySpinner.setValue(depth);
+    mySpinner.draw();
+    myC.fillText("Depth:",posTxt2.x,posTxt2.y);
+
+
+    [base,height] = initSier()
+    Sierpinsky(base,height,depth);
+
+}
+
+function getMousePosition(e,rect,action) {
+    let x = e.clientX-rect.left;
+    let y = e.clientY-rect.top;
+    if (x>=butRun.x && x<butRun.x+butRun.w && y>=butRun.y && y<butRun.y+butRun.h && action=="d") {
+        stat = 1 - stat;
+        initStapRun();
+    } else if (x>=butRst.x && x<butRst.x+butRst.w && y>=butRst.y && y<butRst.y+butRst.h && action=="d") {
+        stat = 1;
+        initStapRun();
+        myC.clear();
+        depth = mySpinner.getValue();
+        DrawCanvas();
+    } else if (x>=butHlp.x && x<butHlp.x+butHlp.w && y>=butHlp.y && y<butHlp.y+butHlp.h && action=="d") {
+        modal.style.display = "block";
+    } else if (x>=mySlider.x && x<mySlider.x+mySlider.w && y>=mySlider.y && y<mySlider.y+mySlider.h) {
+        mySlider.MouseClick(x,y,action) 
+        if (action=="u") {
+            speed = mySlider.getValue();
+            duur = 1000/speed;
         }
-    }
-
-    draw() {
-        this.canvas.save();
-        this.canvas.stroke("white");
-        this.canvas.clearRect(this.x,this.y,this.w,this.h)
-        this.canvas.Rect(this.x,this.y,this.w,this.h)
-        this.canvas.stroke("grey")
-        this.canvas.lineWidth(1);
-        this.canvas.lineFromTo(
-            {x:this.x+this.w/2+1,y:this.y+this.posmi},
-            {x:this.x+this.w/2+1,y:this.y+this.posma});
-        this.canvas.fill("white");
-        this.canvas.fillRect(
-            this.x+this.handle.x,
-            this.handle.y+this.y,
-            this.handle.w,
-            this.handle.h);
-        this.canvas.restore();
-    }
-
-    setValue(va) {
-        this.canvas.save();
-        this.canvas.clearRect(
-            this.x+this.display.x,
-            this.y+this.display.y-1,
-            this.display.w,
-            this.display.h+2);
-        this.canvas.stroke("grey")
-        this.canvas.lineWidth(1);
-        this.canvas.lineFromTo(
-            {x:this.x+this.w/2+1,y:this.y+this.posmi},
-            {x:this.x+this.w/2+1,y:this.y+this.posma});
-        this.va = Math.max(Math.min(va,this.ma),this.mi);
-        let p = (this.va-this.mi)/(this.ma-this.mi)
-        this.pos = p*(this.posma-this.posmi)+this.posmi;
-        this.handle.y = this.pos-this.h/60;
-        this.canvas.fill("white");
-        this.canvas.fillRect(
-            this.x+this.handle.x,
-            this.handle.y+this.y,
-            this.handle.w,
-            this.handle.h);
-        this.canvas.clearRect(this.x,this.y+this.h+5,this.w,30);
-        this.canvas.fillText(this.va.toFixed(0),this.x+this.w/2,this.y+this.h+25);
-        this.canvas.restore();
+    } else if (action=="d" && x>=mySpinner.x && x<mySpinner.x+mySpinner.w && y>=mySpinner.y && y<mySpinner.y+mySpinner.h) {
+        mySpinner.mouseclick(x,y);
+    } else if (action=="d") {
+        DoStap();
     }
 }
 
-class Canvas {
-    constructor() {
-        this.myCanvas = document.getElementById("myCanvas");
-        this.ctx = myCanvas.getContext("2d");
-        this.width = this.myCanvas.clientWidth
-        this.height = this.myCanvas.clientHeight;
-        this.strokeColor = "#FFFFFF"
-        this.fillColor = "#FFFFFF"
-        this.queue = [];
+function initStapRun() {
+    if (stat==0) { // running
+        StartTimer();
+    } else { // mouseclick
+        clearInterval(event);
+    }
+    myC.font("14px Arial");
+    myC.ctx.clearRect(butRun.x+1,butRun.y+1,butRun.w-2, butRun.h-2);
+    myC.fillText(stat==1?"Run":"Stop",butRun.x+butRun.w/2,butRun.y+butRun.h/2);
+    myC.font("20px Arial");
+}
+
+function StartTimer() {
+    event = setInterval(()=>{ 
+        let v = gensier.next();
+        if (v.done) clearInterval(event);
+    },duur)
+}
+
+function initPopup() {
+// Get the modal
+    var modal = document.getElementById("myModal");
+
+// Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal
+/* 
+btn.onclick = function() {
+  modal.style.display = "block";
+}
+*/
+// When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+    modal.style.display = "none";
     }
 
-    fill(color) {
-        this.fillColor = color;
-    }
-
-    stroke(color) {
-        this.strokeColor = color;
-    }
-
-    lineWidth(w) {
-        this.ctx.lineWidth = w;
-    }
-
-    Rect(x,y,w,h) {
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = this.strokeColor;
-        this.ctx.rect(x,y,w,h);
-        this.ctx.stroke();
-    }
-
-    fillRect(x,y,w,h) {
-        this.ctx.fillStyle = this.fillColor;
-        this.ctx.fillRect(x,y,w,h);
-    }
-
-    Circle(x, y, r) {
-        this.ctx.beginPath();
-        this.ctx.fillStyle = this.fillColor;
-        this.ctx.arc(x, y, r, 0, 2 * PI);
-        this.ctx.fill();
-    }
-
-    lineFromTo(p1, p2) {
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = this.strokeColor;
-        this.ctx.moveTo(p1.x, p1.y);
-        this.ctx.lineTo(p2.x, p2.y);
-        this.ctx.stroke();
-    }
-
-    clearRect(x,y,w,h) {
-        this.ctx.clearRect(x,y,w,h);
-    }
-
-    clear() {
-        this.ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-    }
-
-    font(f) {
-        this.ctx.font = f;
-    }
-
-    textAlign(ta) {
-        this.ctx.textAlign = ta;
-    }
-
-    textBaseline(bl) {
-        this.ctx.textBaseline = bl
-    }
-
-    fillText(t, x, y) {
-        this.ctx.fillStyle = this.fillColor
-        this.ctx.fillText(t, x, y);
-    }
-
-    save() {
-        this.queue.push({strokeColor:this.strokeColor,fillColor:this.fillColor});
-        this.ctx.save();
-    }
-
-    restore() {
-        this.ctx.restore();
-        if (this.queue.length>0) {
-            let x = this.queue.pop();
-            this.strokeColor = x.strokeColor;
-            this.fillColor = x.fillColor;
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
         }
     }
 
-} // class Canvas
-
+    return modal;
+}
