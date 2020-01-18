@@ -51,12 +51,17 @@ let rect;
 
 function initCanvas() {
     myC = new Canvas();
-    if (window.innerWidth<window.innerHeight) {
-        myC.myCanvas.width = screen.width*0.8;
-        myC.myCanvas.height = screen.availHeight*0.3;
-} else {
-        myC.myCanvas.width = screen.width*0.5
-        myC.myCanvas.height = screen.availHeight*0.7    
+    let t = myC.myCanvas.parentElement.getClientRects()[0];
+    let t1 = myC.myCanvas.parentElement.firstElementChild.clientHeight;
+
+    let ori = window.matchMedia("(orientation: landscape)");
+    ori.addListener(OnOriChange)
+    if (!ori.matches)  {//(window.innerWidth<window.innerHeight) { // portrait
+        myC.myCanvas.width = t.width; // screen.width*0.8; //  //
+        myC.myCanvas.height = screen.availHeight/2;  
+    } else {
+        myC.myCanvas.width = t.width; //screen.width*0.5
+        myC.myCanvas.height = window.innerHeight-t1;   
     }
     myC.width = myC.myCanvas.clientWidth;
     myC.height = myC.myCanvas.clientHeight;
@@ -76,6 +81,10 @@ function initCanvas() {
 
     DrawCanvas();
     
+}
+
+function OnOriChange() {
+    location.reload();
 }
 
 function DrawCanvas() {
