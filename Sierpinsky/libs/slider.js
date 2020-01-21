@@ -63,7 +63,7 @@ class slider {
         this.canvas.restore();
     }
 
-    setValue(va) {
+    drawValue() {
         this.canvas.save();
         this.canvas.clearRect(
             this.x+this.display.x,
@@ -75,9 +75,6 @@ class slider {
         this.canvas.lineFromTo(
             {x:this.x+this.w/2+1,y:this.y+this.posmi},
             {x:this.x+this.w/2+1,y:this.y+this.posma});
-        this.va = Math.max(Math.min(va,this.ma),this.mi);
-        let p = (this.va-this.mi)/(this.ma-this.mi)
-        this.pos = p*(this.posma-this.posmi)+this.posmi;
         this.handle.y = this.pos-this.h/60;
         this.canvas.fill("white");
         this.canvas.fillRect(
@@ -86,8 +83,19 @@ class slider {
             this.handle.w,
             this.handle.h);
         this.canvas.clearRect(this.x,this.y+this.h+5,this.w,30);
+        this.canvas.font("16px Arial");
+        this.canvas.textAlign("center")
+        this.canvas.textBaseline("middle")
+        this.canvas.stroke("white")
         this.canvas.fillText(this.va.toFixed(0),this.x+this.w/2,this.y+this.h+25);
         this.canvas.restore();
+    }
+
+    setValue(va) {
+        this.va = Math.max(Math.min(va,this.ma),this.mi);
+        let p = (this.va-this.mi)/(this.ma-this.mi)
+        this.pos = p*(this.posma-this.posmi)+this.posmi;
+        this.drawValue();
     }
 
     getValue() {

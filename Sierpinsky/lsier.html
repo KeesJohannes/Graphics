@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="stylesier.css">
+  <meta charset="utf-8">
+</head>
+
+<body onload="LSystemStart()">
+  <script defer language="javascript" type="text/javascript" src="lsys/sierlsystem.js"></script>
+  <script defer language="javascript" type="text/javascript" src="libs/canvas.js"></script>
+  <script defer language="javascript" type="text/javascript" src="libs/slider.js"></script>
+  <script defer language="javascript" type="text/javascript" src="libs/spinner.js"></script>
+  <script defer language="javascript" type="text/javascript" src="libs/turtle.js"></script>
+  <script defer language="javascript" type="text/javascript" src="libs/button.js"></script>
+
+  <div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>
+    The Sierpinsky triangle is drawn by executing the L-system function<br>
+    There are two modes of operation: <em>manual</em> and <em>automatic</em>.<br><br>
+    In <em>manual</em> mode you can click anywhere in the triangle to step through the grammer.<br>
+    In <em>automatic</em> mode the computer will do it for you.<br><br>
+    The button <em>"Run/Stop"</em> switches between the two operation modes.<br>
+    The <em>speed</em> slider let you change the running speed for the automatic mode.<br><br>
+    The <em>"depth"</em> value defines the number of recursions the grammer will go through.<br>
+    The minimum value is 1, the maximum value is 7.<br>
+    The depth and speed values are activated by a click on the button <em>"Restart"</em>. <br><br>
+    The program gives an indication where in the grammer the program is. <br>
+    This can be switched off and on again by hitting the button "(No) Execution" <br> </p>
+    </div>
+  </div>
+
+  <div class="flex-container">
+    <div class="descrip1">
+      <p style="text-align:center;">Sierpinsky drawing</p>
+      <canvas id="myCanvas" ></canvas>
+    </div>
+    <div class="descrip2" style="line-height: 60%;" >
+      <pre>Driving force: The L System: <br>
+Alphabet: F, G, +, -<br>
+Axiom:    F+G+G<br>
+Rules:    F: F+G-F-G+F<br>
+          G: GG<br><br>
+Turtle actions:<br>
+          F,G: move forward<br>
+          +: turn left 120gr<br>
+          -: turn right 120gr<br><br> 
+Execution:<br></pre>
+      <pre id="pretext">
+    </pre>
+    </div>
+  </div>
+</body>
+
+</html>

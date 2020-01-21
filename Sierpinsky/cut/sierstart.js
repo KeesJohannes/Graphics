@@ -28,7 +28,7 @@ let pretekst = [];
 let origpretekst = [];
 let yieldorig;
 
-function OnStart() {
+function RecursiveStart() {
 let rect;
 
     adrestekst = document.getElementById("pretext");

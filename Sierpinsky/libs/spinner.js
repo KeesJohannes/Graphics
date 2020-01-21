@@ -19,9 +19,9 @@ class spinner {
 
     mouseclick(x,y) {
         if (x>=this.pl12.x && x<=this.pl13.x) {
-            this.va = Math.min(this.va+1,this.maxva);
+            this.setValue(Math.min(this.va+1,this.maxva));
         } else if (x>=this.pl22.x && x<=this.pl23.x) {
-            this.va = Math.max(this.va-1,this.minva);
+            this.setValue(Math.max(this.va-1,this.minva));
         }
         this.draw();
     }

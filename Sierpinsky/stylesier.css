@@ -66,10 +66,10 @@ canvas {
   color: black;
   font-family: monospace;
   font-weight: bold;
-  font-size: 14pt;
+  font-size: 12pt;
   padding-left: 10px;
   padding-right: 10px;
-  line-height: 60%;
+  line-height: 70%;
 }
 
 .flex-container {
