@@ -17,17 +17,7 @@
     <div class="modal-content">
       <span class="close">&times;</span>
       <p>
-    The Sierpinsky triangle is drawn by executing the L-system function<br>
-    There are two modes of operation: <em>manual</em> and <em>automatic</em>.<br><br>
-    In <em>manual</em> mode you can click anywhere in the triangle to step through the grammer.<br>
-    In <em>automatic</em> mode the computer will do it for you.<br><br>
-    The button <em>"Run/Stop"</em> switches between the two operation modes.<br>
-    The <em>speed</em> slider let you change the running speed for the automatic mode.<br><br>
-    The <em>"depth"</em> value defines the number of recursions the grammer will go through.<br>
-    The minimum value is 1, the maximum value is 7.<br>
-    The depth and speed values are activated by a click on the button <em>"Restart"</em>. <br><br>
-    The program gives an indication where in the grammer the program is. <br>
-    This can be switched off and on again by hitting the button "(No) Execution" <br> </p>
+    The Sierpinsky triangle is drawn by executing the Chaos Game<br>
     </div>
   </div>
 
@@ -38,13 +28,13 @@
     </div>
     <div class="descrip2" style="line-height: 60%;" >
       <pre>Driving force: The Chaos Game: <br><br>
-step 1: generate a point within the triangle.<br>
+step 1: Generate a point within the triangle.<br>
         This becomes the current point.<br>
-step 2: draw the current point.<br>
-step 3: choose randomly a corner of the triangle. <br>
-        The next current lies halfway the choosen corner<br> 
-        and the former current<br>
-step 4: repeat the steps 2,3 and 4 as manytimes as you like.<br>
+step 2: Draw the current point.<br>
+step 3: Calculate a new point halfway between the current point<br>
+        and a randomly choosen corner of the triangle.<br> 
+        This calculated point becomes the new current point.<br>
+step 4: Repeat the steps 2,3 and 4 as many times as you like.<br>
       </pre>
       <pre id="pretext">
     </pre>
