@@ -40,7 +40,7 @@ class Canvas {
         this.ctx.lineTo(x2,y2);
         this.ctx.lineTo(x3,y3);
         this.ctx.closePath();
-        ctx.stroke();
+        this.ctx.stroke();
     }
 
     fillTriangle(x1,y1,x2,y2,x3,y3) {
@@ -58,7 +58,7 @@ class Canvas {
     Circle(x, y, r) {
         this.ctx.beginPath();
         this.ctx.fillStyle = this.fillColor;
-        this.ctx.arc(x, y, r, 0, 2 * PI);
+        this.ctx.arc(x, y, r, 0, 2 * Math.PI);
         this.ctx.fill();
     }
 
