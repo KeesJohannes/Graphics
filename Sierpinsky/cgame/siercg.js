@@ -38,7 +38,7 @@ function initCanvas() {
     butHlp = {x:gw*37,y:butRun.y,w:gw*2,h:gh*2};
     mybutHlp = new button(myC,"?",butHlp.x,butHlp.y,butHlp.w,butHlp.h);
     freeArea = {x:butRun.x-gh,y:0,w:gw*40-butRun.x+gw,h:butRst.y+butRst.h+gh};
-    mytxtHead = {x:myC.width/2,y:gh*3,w:gw*10,h:gh*3};
+    mytxtHead = {x:myC.width/2,y:gh*1,w:gw*10,h:gh*2};
 
     modal = initPopup();
 
@@ -59,13 +59,11 @@ function DrawCanvas() {
     mybutRst.draw();
     mybutHlp.draw();
 
-    printStatus();
-
 }
 
 function printStatus() {
     myC.save();
-    myC.font("24px Arial")
+    myC.font("20px Arial")
     myC.fill("black")
     myC.fillRect(mytxtHead.x-mytxtHead.w/2,mytxtHead.y-mytxtHead.h/2,mytxtHead.w,mytxtHead.h);
     if (mybutRun.clicked) {
@@ -83,11 +81,11 @@ let where = {}; // y_midden, x_midden.,
 let pijlpunt = {}
 
 function initCG() {
-    let b = 0.9*myC.width;
+    let b = 0.80*myC.width;
     let angle = Math.PI*2/3; // 120gr)
     let h = b*Math.tan(-angle)/2;
-    if (h>myC.height*0.9) {
-        h = myC.height*0.9;
+    if (h>myC.height*0.80) {
+        h = myC.height*0.80;
         b = 2*h/Math.tan(-angle)
     }    
     let xleft = (myC.width-b)/2;
@@ -95,6 +93,8 @@ function initCG() {
     let pl = { x: xleft, y: ytop+h };
     let pr = { x: pl.x + b, y: pl.y }
     let pt = { x: (pl.x + pr.x) / 2, y: pl.y-h};
+    mytxtHead.y = pt.y/2;
+    printStatus();
     driehoek = [pl,pr,pt];
     where = {y_midden:(pl.y+pt.y)/2, x_midden:pt.x};
     base = b; 
@@ -286,9 +286,10 @@ function OneStep() {
 }
 
 function updatemessage() {
-    myC.clearRect(driehoek[2].x-20,driehoek[0].y+10,40,30);
+    let yc = (myC.height-driehoek[0].y)/2+driehoek[0].y;
+    myC.clearRect(driehoek[2].x-20,yc-10,40,3*gh);
     myC.fill("white")
-    myC.fillText(`${count}`,driehoek[2].x,driehoek[0].y+30)
+    myC.fillText(`${count}`,driehoek[2].x,yc);
 }
 
 
@@ -308,8 +309,8 @@ function getMousePosition(e,rect,action) {
         if (action=="d") {
             if (mybutRun.isClicked(x,y)) {
                 mybutRun.click();
-                printStatus();
                 if (mybutRun.clicked) { // status is running
+                    clearPijlen();
                     mybutRun.text = "Stop"
                     trailEmptyAll();
                     if (count==0) startcg();
@@ -318,6 +319,7 @@ function getMousePosition(e,rect,action) {
                     mybutRun.text = "Run"; // status is manual
                     stopcg();
                 }
+                printStatus();
                 mybutRun.redraw();
             } else if (mybutRst.isClicked(x,y)) {
                 stopcg();
