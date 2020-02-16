@@ -12,7 +12,7 @@ div.a {
   padding:0px;
   border: 0px solid darkblue;
   text-align: left;
-  font-size: 12pt;
+  font-size: 10pt;
 }
 
 div.b {
@@ -24,7 +24,7 @@ div.b {
   padding: 0px;
   border: 0px darkblue;
   text-align: left;
-  font-size: 12pt;
+  font-size: 10pt;
 }
 
 .grid-container {
