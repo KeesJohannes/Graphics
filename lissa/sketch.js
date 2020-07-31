@@ -128,7 +128,6 @@ function setup() {
     hfaslider.value(hfa)
     hfaslider.elt.addEventListener("change",()=>{
         if (wnValue.checked()) {
-            hfaslider.value(hfa)
             hfa = (Math.floor(hfaslider.value()))
         } else {
             hfa = hfaslider.value();
