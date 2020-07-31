@@ -1,6 +1,6 @@
-function preload() {
-    myFont = loadFont("assets/arial.ttf")
-}
+//function preload() {
+//    myFont = loadFont("assets/arial.ttf")
+//}
 
 hfa = 5 // hoek frequentie a
 hfb = 3 //hoek freuentie b
@@ -16,7 +16,7 @@ tijd = 0;
 
 figuur = []
 
-myFont = null
+//myFont = null
 formPosx = 620
 formPosdx = 110
 formPosy = 1
@@ -38,7 +38,8 @@ function herstart() {
 }
 
 function setup() {
-    createCanvas(600,600,WEBGL);
+    createCanvas(600,600);
+    translate(width/2,height/2)
     background(0);
     figuur = []
 
@@ -79,7 +80,7 @@ function setup() {
     h.position(formPosx,formPosy+figcnt*formPosdy)
 
     figcnt += 1
-    hfaslider = createSlider(1,5,1,1)
+    hfaslider = createSlider(1,10,1,1)
     hfaslider.position(formPosx+formPosdx,formPosy+figcnt*formPosdy) 
     hfaslider.value(hfa)
     hfaslider.elt.addEventListener("change",()=>{hfa = hfaslider.value();hfatxt.elt.innerHTML = txtA();})
@@ -89,7 +90,7 @@ function setup() {
     h.position(formPosx,formPosy+figcnt*formPosdy)
     
     figcnt += 1
-    hfbslider = createSlider(1,5,1,1)
+    hfbslider = createSlider(1,10,1,1)
     hfbslider.position(formPosx+formPosdx,formPosy+figcnt*formPosdy) 
     hfbslider.value(hfb)
     hfbslider.elt.addEventListener("change",()=>{hfb = hfbslider.value();hfbtxt.elt.innerHTML = txtB();})
@@ -126,7 +127,8 @@ function draw() {
 
     clear();
     background(0);
-    textFont(myFont)
+    translate(width/2,height/2)
+    //textFont(myFont)
 
     // assenkruis
     fill("white")
@@ -135,24 +137,25 @@ function draw() {
     line(-width/2+width/16,0,width/2,0);
     line(0,-height/2,0,height/2-height/16)
     
+    push()
     textSize(18)
     textAlign(CENTER,CENTER)
-    text("x = A*sin(freqA*t+alfaX)",-width/4,height*0.39,width/2,100)
-    push()
+    noStroke()
+    text("x = A*sin(freqA*t+faseX)",-width/4,height*0.39,width/2,100)
     rotate(-PI/2)
-    text("y = B*sin(freqB*t+alfaY)",-width/4,-height*0.53,width/2,height/10)
+    text("y = B*sin(freqB*t+faseY)",-width/4,-height*0.53,width/2,height/10)
     pop()
-    //hfbsliderelt.innerHTML = `y = ${sb}*sin(${ofbp}*t+${ofb})`
 
     x = sa*sin(hfa*tijd+ofa)
     y = sb*sin(hfb*tijd+ofb)
     figuur.push(createVector(x,y))
 
+    strokeWeight(10)
+    point(x,y)
     strokeWeight(5)
     point(x,height/2-40)
     point(-width/2+40,y)
 
-    //fa.gerWolt = f
     noFill()
     strokeWeight(1)
     beginShape()
