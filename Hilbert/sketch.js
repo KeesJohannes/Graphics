@@ -14,11 +14,55 @@ duration = 100;
 waitingtime = 20;
 maxdetail = 4 // highest generation.
 detail = 0; // current generation
+isLooping = false
+cnv = null
+enabled = "enabled"
+disabled = "disabled"
+
+function restart() {
+
+    val = but1.attribute(enabled)
+    if (val==disabled) return
+    but1.attribute(enabled,disabled)
+
+    points = []; // generation n
+    points2 = []; // generation n-1 with the same number of points as generation n. 
+    points3 = []
+    points4 = []
+    size = 90
+    richt = []; // de 4 vectors to the south-east, south-west, north-east and north-west.
+    t = 0; // elapsetime from 0 to duration.
+    duration = 100;
+    waitingtime = 20;
+    maxdetail = 4 // highest generation.
+    detail = 0; // current generation                
+
+    setup2()
+
+    if (!isLooping) {
+        loop();
+    }
+}
 
 function setup() {
-    createCanvas(800,400);
+
+    if (!cnv) cnv = createCanvas(800,400);
     background(0);
     colorMode(HSB,100)
+
+    but1 = createButton("Restart")
+    but1.class('txt2')
+    but1.mousePressed(restart)
+    but1.position((width-but1.size().width)/2,AUTO)
+    but1.attribute("enabled","disabled")
+
+
+    setup2()
+
+}
+
+function setup2() {
+
     stroke(50)
     frameRate(20)
     richt = [
@@ -206,10 +250,14 @@ function draw() {
     if (t>(duration+waitingtime)) {
         detail++
         if (detail>maxdetail) {
+            isLooping = false
+            print("noLoop()")
+            but1.attribute(enabled,enabled)
             noLoop();
             return;
         }
         t = 0;
+        print(points.length)
         enlarge(); // verviervoudig tabel points naar points2.
         dostep()
     }

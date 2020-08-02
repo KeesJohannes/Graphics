@@ -1,6 +1,3 @@
-//function preload() {
-//    myFont = loadFont("assets/arial.ttf")
-//}
 
 hfa = 5 // hoek frequentie a
 hfb = 3 //hoek freuentie b
@@ -49,19 +46,23 @@ function setup() {
     ori = window.matchMedia("(orientation: landscape)");
     ori.addListener(OnOriChange)
 
-    createCanvas(550,550);
-    translate(width/2,height/2)
-    background(0);
-    if (windowWidth > windowHeight) stand = 1; // (landscape)
-    else stand = 0; //(portrait)
-
-    if (stand==0) {
+    siCanvas = 500
+    if (windowWidth > windowHeight) {
+        stand = 1; // (landscape)
+    } else {
+        stand = 0; //(portrait)
+    }
+    createCanvas(siCanvas,siCanvas);
+    if (stand==0) { // portrait
         formPosx = 10
         formPosy = 570
-    } else {
+    } else { // landscape
         formPosx = 570
         formPosy = 1
     }
+    
+    translate(width/2,height/2)
+    background(0);
 
     figuur = []
 
@@ -222,9 +223,9 @@ function draw() {
     textSize(18)
     textAlign(CENTER,CENTER)
     noStroke()
-    text("x = A*sin(freqA*t+faseX)",-width/4,height*0.39,width/2,100)
+    text("x = A*sin(freqA*t+faseX)",-width/4,height*0.37,width/2,100)
     rotate(-PI/2)
-    text("y = B*sin(freqB*t+faseY)",-width/4,-height*0.53,width/2,height/10)
+    text("y = B*sin(freqB*t+faseY)",-width/4,-height*0.52,width/2,height/10)
     pop()
 
     x = sa*sin(hfa*tijd+ofa)
