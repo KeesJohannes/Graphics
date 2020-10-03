@@ -13,7 +13,6 @@ tijd = 0;
 
 figuur = []
 
-//myFont = null
 formPosx = 570
 formPosdx = 120
 formPosy = 1
@@ -105,7 +104,7 @@ function setup() {
     coefBtxtSize = h.size() 
 
     figcnt += 1
-    coefBValueX = coefBtxtX + coefBtxtSize.width + 10
+    coefBValueX = coefAValueX ;//coefBtxtX + coefBtxtSize.width + 10
     coefBValueY = formPosy+figcnt*formPosdy
     hsbslider = createSlider(10,200,150,10)
     hsbslider.position(coefBValueX,coefBValueY)
@@ -122,7 +121,7 @@ function setup() {
     freqAtxtSize = h.size()
 
     figcnt += 1
-    freqAValueX = freqAtxtX + freqAtxtSize.width + 10
+    freqAValueX = coefAValueX; //freqAtxtX + freqAtxtSize.width + 10
     freqAValueY = formPosy+figcnt*formPosdy
     hfaslider = createSlider(1,10,1,0.1)
     hfaslider.position(freqAValueX, freqAValueY); 
@@ -163,10 +162,10 @@ function setup() {
     freqBtxtSize = h.size()
 
     figcnt += 1
-    freqBValueX = freqBtxtX + freqBtxtSize.width + 10
+    freqBValueX = coefAValueX; //freqBtxtX + freqBtxtSize.width + 10
     freqBValueY = formPosy+figcnt*formPosdy
     hfbslider = createSlider(1,10,1,0.1)
-    hfbslider.position(freqBValueX, freqBValueY); //formPosx+formPosdx,formPosy+figcnt*formPosdy) 
+    hfbslider.position(freqBValueX, freqBValueY);  
     hfbslider.value(hfb)
     hfbslider.elt.addEventListener("change",()=>{
         if (wnValue.checked()) {
@@ -178,23 +177,32 @@ function setup() {
     })
 
     figcnt += 1
+    faseAtxtX = formPosx
+    faseAtxtY = formPosy+figcnt*formPosdy
     h = createP("fase X:")
     h.class("txt")
-    h.position(formPosx,formPosy+figcnt*formPosdy)
+    h.position(faseAtxtX, faseAtxtY)
+    faseAtxtSize = h.size()
 
     figcnt += 1
+    faseAValueX = coefAValueX; //faseAtxtX + faseAtxtSize.width + 10
+    faseAValueY = formPosy+figcnt*formPosdy
     hfxslider = createSlider(0,2,0,0.1)
-    hfxslider.position(formPosx+formPosdx,formPosy+figcnt*formPosdy) 
+    hfxslider.position(faseAValueX, faseAValueY) 
     hfxslider.value(ofap)
     hfxslider.elt.addEventListener("change",()=>{ofap = hfxslider.value();hfatxt.elt.innerHTML = txtA();})
 
+    faseBtxtX = formPosx
+    faseBtxtY = formPosy+figcnt*formPosdy
     h = createP("fase Y:")
     h.class("txt")
-    h.position(formPosx,formPosy+figcnt*formPosdy)
+    h.position(faseBtxtX, faseBtxtY)
 
     figcnt += 1
+    faseBValueX = coefAValueX; //faseAtxtX + faseAtxtSize.width + 10
+    faseBValueY = formPosy+figcnt*formPosdy
     hfyslider = createSlider(0,2,0,0.1)
-    hfyslider.position(formPosx+formPosdx,formPosy+figcnt*formPosdy) 
+    hfyslider.position(faseBValueX, faseBValueY) 
     hfyslider.value(ofbp)
     hfyslider.elt.addEventListener("change",()=>{ofbp = hfyslider.value();hfbtxt.elt.innerHTML = txtB();})
 
@@ -255,5 +263,4 @@ function draw() {
     }
 
     
-    //noLoop()
 }
