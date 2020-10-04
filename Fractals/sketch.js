@@ -3,15 +3,9 @@ stand  = 0;
 ori = null;
 
 base = [];
-basepart = 0;
 model = [];
-depth = 0;
 
-curlength = 0;
-teller = 0;
-curpos = null;
-firstpos = null;
-depth = 5
+myk = null; //new bereken(5);
 
 formPosx = 0;
 formPosy = 0;
@@ -27,16 +21,11 @@ function txtA(s) {
 
 function herstart() {
 
-    teller = 0;
-    basepart = 0;
-    let rescalcsize = calcsize();
-    curlength = rescalcsize.factor;
-    
-    teller = 0;
-    basepart = 0;
-    curpos = createVector(siCanvas/2-rescalcsize.shx,siCanvas/2-rescalcsize.shy);
-    firstpos = curpos.copy();
-    
+    myk.again = true;
+    myk.kleur = color(255,255,255);
+
+    firststep();
+
     clear();
     background(0);
     loop();
@@ -44,7 +33,6 @@ function herstart() {
 }
 
 function addelements() {
-
 
     textSize(18);
 
@@ -60,8 +48,8 @@ function addelements() {
     coefAValueY = formPosy + hfatxt.size().height;
     hsaslider = createSlider(2,10,5,1)
     hsaslider.position(coefAValueX,coefAValueY); 
-    hsaslider.value(depth)
-    hsaslider.elt.addEventListener("change",()=>{sa = hsaslider.value();depth = sa; hfatxt.elt.innerHTML = txtA(sa);})
+    hsaslider.value(myk.depth)
+    hsaslider.elt.addEventListener("change",()=>{sa = hsaslider.value();myk.depth = sa; hfatxt.elt.innerHTML = txtA(sa);})
     coefAValueSize = hsaslider.size() 
 
     figcnt += 1
@@ -96,61 +84,76 @@ function setup() {
     stroke(255);
     angleMode(RADIANS);
 
-    addelements();
-        
     base[0] = -1;
     base[1] = +0.5
     base[2] = 0;
     base[3] = -0.5;
-    basepart = 0;
     
     model[0] = 0.25;
     //model[1] = 0.75;
     //model[2] = -0.75;
     model[1] = -0.25;
 
-    depth = 4;
 
+    myk = new bereken(4);
+
+    addelements();
+        
+    firststep();
+}
+
+function firststep() {
+    
     let rescalcsize = calcsize();
-    curlength = rescalcsize.factor;
     
-    teller = 0;
-    basepart = 0;
-    curpos = createVector(siCanvas/2-rescalcsize.shx,siCanvas/2-rescalcsize.shy);
-    firstpos = curpos.copy();
-    
+    myk.teller = 0;
+    myk.basepart = 0;
+    if (myk.again) {
+        myk.curlength = rescalcsize.factor;
+        myk.curpos = createVector(siCanvas/2-rescalcsize.shx,siCanvas/2-rescalcsize.shy);
+    } else {
+        myk.curlength *= sqrt(0.5);
+        myk.curpos = myk.firstpos.copy();
+    }
+    myk.firstpos = myk.curpos.copy();
 }
 
 function draw() {
 
-    stroke(255);
-
-    let newpos = p5.Vector.add(curpos,fetchri().mult(curlength));
-    line(curpos.x,curpos.y,newpos.x,newpos.y);
+    stroke(myk.kleur);
+    let h = fetchri();
+    let newpos = p5.Vector.add(myk.curpos,h.mult(myk.curlength));
+    line(myk.curpos.x,myk.curpos.y,newpos.x,newpos.y);
     
-    curpos = newpos;
+    myk.curpos = newpos;
     if (!nextstep()) {
-       line(curpos.x,curpos.y,firstpos.x,firstpos.y); 
-       noLoop();        
+       line(myk.curpos.x,myk.curpos.y,myk.firstpos.x,myk.firstpos.y); 
+       if (myk.again) {
+            myk.kleur = color(255,0,0);
+            myk.again = false;
+            myk.depth += 1;
+            firststep(); 
+       } else 
+        noLoop();        
     }   
 }
 
 function calcsize() {
-    teller = 0;
-    basepart = 0;
+    myk.teller = 0;
+    myk.basepart = 0;
     let left = 0; //Infinity;
     let right = 0; //-Infinity;
     let top = 0; //Infinity;
     let bottom = 0; //-Infinity;
-    curpos = createVector(0,0);
+    myk.curpos = createVector(0,0);
     do {
         let fcri = fetchri();
-        let newpos = p5.Vector.add(curpos,fcri);
+        let newpos = p5.Vector.add(myk.curpos,fcri);
         left = min(left,newpos.x);
         right = max(right,newpos.x);
         top = min(top,newpos.y);
         bottom = max(bottom,newpos.y); 
-        curpos = newpos.copy();
+        myk.curpos = newpos.copy();
     } while (nextstep());
     
     let factor = siCanvas*0.9/(right-left);
@@ -177,18 +180,18 @@ function calcangle(cntr) {
 }
 
 function fetchri() {
-    let counter = converttoarray(teller,depth);
+    let counter = converttoarray(myk.teller,myk.depth);
     let angle = calcangle(counter);
-    let curri = createVector(1,0).rotate((base[basepart]+angle)*PI); //.mult(curlength);
+    let curri = createVector(1,0).rotate((base[myk.basepart]+angle)*PI); //.mult(curlength);
     return curri;    
 }
 
 function nextstep() {
-    teller += 1;
-    if (teller>=pow(2,depth)) {
-        teller = 0;
-        basepart += 1;
-        if (basepart>=base.length) {
+    myk.teller += 1;
+    if (myk.teller>=pow(2,myk.depth)) {
+        myk.teller = 0;
+        myk.basepart += 1;
+        if (myk.basepart>=base.length) {
             nogeens = true;
            return false; 
         }
@@ -196,3 +199,16 @@ function nextstep() {
     return true;
 }
 
+class bereken {
+    constructor(level) {
+        this.depth = level;
+        this.aantal = 0;
+        this.basepart = 0;
+        this.curlength = 0;
+        this.teller = 0;
+        this.curpos = null;
+        this.firstpos = null;
+        this.kleur = color(255);
+        this.again = true;
+    }
+}
