@@ -3,212 +3,291 @@ stand  = 0;
 ori = null;
 
 base = [];
-model = [];
+mdel = [];
+basearray = [];
+gedaan = 0;
+dataList = null;
+mdelList = null;
+gesloten = false;
 
-myk = null; //new bereken(5);
+myk = null; 
+genroutine = null;
+funcorp = null;
 
 formPosx = 0;
 formPosy = 0;
 formPosdy = 20;
+hsaslider = null;
+hfatxt = null;
 
-function OnOriChange() {
-    location.reload();
+
+function fillData() {
+    let dataList = new choicedata();
+    // straight line (=0)
+    dataList.addData(
+        [
+        createVector(0,0),
+        createVector(1,0)
+        ]
+    );
+    // triangle (=1)
+    dataList.addData(
+        [
+        createVector(0,0),
+        createVector(0.5,-0.5*sqrt(3)),
+        createVector(1,0),
+        createVector(0,0)
+        ]
+    );
+    // square (=2)
+    dataList.addData(
+        [
+        createVector(0,0),
+        createVector(0,-1),
+        createVector(1,-1),
+        createVector(1,0),
+        createVector(0,0)
+        ]
+    );
+
+    let mdelList = new choicedata();
+    // roof 
+    mdelList.addData(
+        [
+        createVector(0,0),
+        createVector(0.5,-0.5),
+        createVector(1,0)
+        ]
+    );
+    // hole
+    mdelList.addData(
+        [
+        createVector(0,0),
+        createVector(0.5,0.5),
+        createVector(1,0)
+        ]
+    );
+    // dip
+    mdelList.addData(
+        [
+        createVector(0,0),
+        createVector(1/3,0),
+        createVector(0.5,0.5*sqrt(0.5)),
+        createVector(2/3,0),
+        createVector(1,0)
+        ]
+    );
+    // top
+    mdelList.addData(
+        [
+        createVector(0,0),
+        createVector(1/3,0),
+        createVector(0.5,-0.5*sqrt(0.5)),
+        createVector(2/3,0),
+        createVector(1,0)
+        ]
+    );
+    // bounce
+    mdelList.addData(
+        [
+        createVector(0,0),
+        createVector(0.25,0),
+        createVector(0.25,0.2),
+        createVector(0.5,0.2),
+        createVector(0.5,0),
+        createVector(0.5,-0.2),
+        createVector(0.75,-0.2),
+        createVector(0.75,0),
+        createVector(1,0)
+        ]
+    );
+        
+    return [dataList,mdelList];
 }
 
-function txtA(s) {
-    return `levels: ${s}`
+function sizeOfDrawing() {
+    let minx = Infinity;
+    let maxx = -Infinity;
+    let miny = Infinity;
+    let maxy = -Infinity;
+    let b;
+    for (let a of getsticks()) {
+        b = a;
+        minx = min(minx,a.b.x);
+        maxx = max(maxx,a.b.x);
+        miny = min(miny,a.b.y);
+        maxy = max(maxy,a.b.y);
+    }
+    minx = min(minx,b.e.x);
+    maxx = max(maxx,b.e.x);
+    miny = min(miny,b.e.y);
+    maxy = max(maxy,b.e.y);
+
+    let factor = min(width,height)*0.9/max(maxx-minx,maxy-miny);
+    let middentek = createVector((maxx+minx)/2,(maxy+miny)/2);
+    let mcanvas = createVector(width/2,height/2)
+    let fun = function(p) {
+        // translatie naar oorsprong
+        // factor
+        // translatie naar midden canvas
+        let pp = p.copy().sub(middentek).mult(factor).add(mcanvas);
+        return pp; 
+        //return p.copy().sub(middentek).mult(factor).add(mcanvas);
+    }
+    return fun
+}
+
+function firststep() {
+
+    stroke(255);
+
+    myk.curpos = base[0];
+    myk.firstpos = myk.curpos.copy();
+
+    funcorp = sizeOfDrawing(); // to determinee the size of the drawing and to make the scale function
+    myk.curpos = myk.firstpos.copy();
+    genroutine = getsticks(); // this wil generate the drawing.
 }
 
 function herstart() {
 
-    myk.again = true;
-    myk.kleur = color(255,255,255);
-
     firststep();
+
+    gedaan = 0;
+    stroke(255);
 
     clear();
     background(0);
     loop();
-
 }
-
-function addelements() {
-
-    textSize(18);
-
-    figcnt = 0
-    hfatxtX = formPosx
-    hfatxtY = formPosy
-    hfatxt = createP(txtA(4))
-    hfatxt.class("txt")
-    hfatxt.position(hfatxtX,hfatxtY)
-
-    figcnt += 1
-    coefAValueX = hfatxtX + hfatxt.size().width + 15;
-    coefAValueY = formPosy + hfatxt.size().height;
-    hsaslider = createSlider(2,10,5,1)
-    hsaslider.position(coefAValueX,coefAValueY); 
-    hsaslider.value(myk.depth)
-    hsaslider.elt.addEventListener("change",()=>{sa = hsaslider.value();myk.depth = sa; hfatxt.elt.innerHTML = txtA(sa);})
-    coefAValueSize = hsaslider.size() 
-
-    figcnt += 1
-    but1 = createButton("Restart")
-    but1.position(formPosx,formPosy+figcnt*formPosdy)
-    but1.class("txt2")
-    but1.mousePressed(herstart)
-
-}
-
 
 function setup() {
 
-    ori = window.matchMedia("(orientation: landscape)");
-    ori.addListener(OnOriChange)
+    [dataList,mdelList] = fillData();
 
-    if (windowWidth > windowHeight) {
-        stand = 1; // (landscape)
-    } else {
-        stand = 0; //(portrait)
-    }
-    createCanvas(siCanvas,siCanvas);
-    if (stand==0) { // portrait
-        formPosx = 10
-        formPosy = 520
-    } else { // landscape
-        formPosx = 520
-        formPosy = 10
-    }
+    myk = new bereken(2);
+
+    base = dataList.getData(0);
+    mdel = mdelList.getData(0);
+    mdel.splice(0,1);
+    //print(mdel);
     
+    let basecanvas = createCanvas(siCanvas,siCanvas);
+    basecanvas.parent("cv")
+
+    PosElements();
+
+    frameRate(50);
+
     background(0);
     stroke(255);
     angleMode(RADIANS);
 
-    base[0] = -1;
-    base[1] = +0.5
-    base[2] = 0;
-    base[3] = -0.5;
-    
-    model[0] = 0.25;
-    //model[1] = 0.75;
-    //model[2] = -0.75;
-    model[1] = -0.25;
+    gedaan = 0;
 
-
-    myk = new bereken(4);
-
-    addelements();
-        
-    firststep();
+    herstart()
 }
 
-function firststep() {
-    
-    let rescalcsize = calcsize();
-    
-    myk.teller = 0;
-    myk.basepart = 0;
-    if (myk.again) {
-        myk.curlength = rescalcsize.factor;
-        myk.curpos = createVector(siCanvas/2-rescalcsize.shx,siCanvas/2-rescalcsize.shy);
-    } else {
-        myk.curlength *= sqrt(0.5);
-        myk.curpos = myk.firstpos.copy();
+
+function* telling(g,d) {
+    let count = Array(d);
+    count.fill(0);
+    yield count;
+    let i = d-1;
+    while (i>=0) {
+        if (++count[i]>=g) {
+            count[i--] = 0;
+        } else {
+            yield count; //.slice().reverse();
+            i = d-1;
+        }
     }
-    myk.firstpos = myk.curpos.copy();
+}
+
+function* getsticks() {
+    //print("g",mdel.length,myk.depth,Math.log(3000/(base.length-1))/Math.log(mdel.length))
+    let telpoints = 0;
+    for (tel=0;tel<base.length-1;tel++) { // length
+        let bewaar = Array(myk.depth);
+        let telp1 = (tel+1); //%base.length
+        let lengte = base[telp1].dist(base[tel]);
+        let hoek = base[telp1].copy().sub(base[tel]).heading();
+        let newpos = myk.curpos.copy().add(createVector(lengte,0).rotate(hoek));
+        let g1 = {b:myk.curpos,e:newpos};
+        let base_am = new ApplyModel(mdel,g1);
+        bewaar.fill({ind:-1,am:null})
+        for (let cnt of telling(mdel.length,myk.depth)) {
+            let am = base_am;
+            for (let k=0;k<cnt.length;k++) {
+                let seg = cnt[k]
+                //let haalop = (seg == bewaar[k].ind)
+                if (seg == bewaar[k].ind) {
+                    am = bewaar[k].am;
+                } else {
+                    am = new ApplyModel(mdel,am.fetchSeg(seg));
+                    bewaar[k] = {ind:seg,am}
+                    for (let i=k+1;i<bewaar.length;i++) bewaar[i] = {ind:-1,am:null};
+                }
+                g1 = am.g;
+            }
+            telpoints++;
+            yield {b:g1.b,e:g1.e}
+        } 
+        myk.curpos = newpos;   
+    } 
+    //telpoints++;
+    //print("tel",telpoints);
 }
 
 function draw() {
-
-    stroke(myk.kleur);
-    let h = fetchri();
-    let newpos = p5.Vector.add(myk.curpos,h.mult(myk.curlength));
-    line(myk.curpos.x,myk.curpos.y,newpos.x,newpos.y);
     
-    myk.curpos = newpos;
-    if (!nextstep()) {
-       line(myk.curpos.x,myk.curpos.y,myk.firstpos.x,myk.firstpos.y); 
-       if (myk.again) {
-            myk.kleur = color(255,0,0);
-            myk.again = false;
-            myk.depth += 1;
-            firststep(); 
-       } else 
-        noLoop();        
-    }   
-}
-
-function calcsize() {
-    myk.teller = 0;
-    myk.basepart = 0;
-    let left = 0; //Infinity;
-    let right = 0; //-Infinity;
-    let top = 0; //Infinity;
-    let bottom = 0; //-Infinity;
-    myk.curpos = createVector(0,0);
-    do {
-        let fcri = fetchri();
-        let newpos = p5.Vector.add(myk.curpos,fcri);
-        left = min(left,newpos.x);
-        right = max(right,newpos.x);
-        top = min(top,newpos.y);
-        bottom = max(bottom,newpos.y); 
-        myk.curpos = newpos.copy();
-    } while (nextstep());
-    
-    let factor = siCanvas*0.9/(right-left);
-    let shx = (left+right)*factor/2;
-    let shy = (top+bottom)*factor/2;
-    return {factor,shx,shy};
-}
-
-function converttoarray(nummer,digits) {
-    let res = Array(digits);
-    for (let d=0;d<digits;d++) {
-        res[d] = nummer%2;
-        nummer = floor(nummer/2);
-    }
-    return res;
-}
-
-function calcangle(cntr) {
-    angle = 0;
-    for (let i=0;i<cntr.length;i++) {
-        angle += model[cntr[i]];
-    }
-    return angle;
-}
-
-function fetchri() {
-    let counter = converttoarray(myk.teller,myk.depth);
-    let angle = calcangle(counter);
-    let curri = createVector(1,0).rotate((base[myk.basepart]+angle)*PI); //.mult(curlength);
-    return curri;    
-}
-
-function nextstep() {
-    myk.teller += 1;
-    if (myk.teller>=pow(2,myk.depth)) {
-        myk.teller = 0;
-        myk.basepart += 1;
-        if (myk.basepart>=base.length) {
-            nogeens = true;
-           return false; 
+    let res = genroutine.next();
+    if (res.done) {
+        if (gedaan<=1) {
+            noLoop();
+            return;    
         }
-    }    
-    return true;
+    }
+    let h = res.value;
+    myline(h.b,h.e);
+
+//    noLoop();
+
+}
+
+function myline(b,e) {
+    let bp = funcorp(b);
+    let ep = funcorp(e);
+    line(bp.x,bp.y,ep.x,ep.y);
+}
+
+class ApplyModel {
+    constructor(m,g) {
+        this.imod = []; //Array(m.length+1);
+        this.imod[0] = createVector(0,0);
+        this.g = g;
+        //copieer model naar intern
+        for (let i in m) {this.imod[int(i)+1] = m[i].copy()}
+        // roteer gelijk aan b->e
+        // expand to length b->e
+        // translate to b
+        let hoek = g.e.copy().sub(g.b).heading();
+        let lengte = g.e.dist(g.b);
+        for (let i in this.imod) {
+            this.imod[int(i)].rotate(hoek).mult(lengte).add(g.b);
+        }
+    }
+
+    fetchSeg = function(nr) {
+        return {b:this.imod[nr].copy(),e:this.imod[nr+1].copy()};
+    }
 }
 
 class bereken {
     constructor(level) {
         this.depth = level;
-        this.aantal = 0;
         this.basepart = 0;
-        this.curlength = 0;
-        this.teller = 0;
         this.curpos = null;
         this.firstpos = null;
-        this.kleur = color(255);
-        this.again = true;
     }
 }
