@@ -14,12 +14,16 @@ myk = null;
 genroutine = null;
 funcorp = null;
 
+but1 = null;
+but2 = null;
+basesel = null;
+mdsel = 1;
+hsaslider = 1;
 formPosx = 0;
 formPosy = 0;
 formPosdy = 20;
-hsaslider = null;
 hfatxt = null;
-
+tobedisabled = [];
 
 function fillData() {
     let dataList = new choicedata();
@@ -151,6 +155,8 @@ function firststep() {
 
 function herstart() {
 
+    disable(tobedisabled)
+    
     firststep();
 
     gedaan = 0;
@@ -245,6 +251,9 @@ function draw() {
     if (res.done) {
         if (gedaan<=1) {
             noLoop();
+            //but1.elt.removeAttribute("disabled");
+            //but1.attribute("enabled","enabled");
+            enable(tobedisabled);
             return;    
         }
     }
@@ -254,6 +263,8 @@ function draw() {
 //    noLoop();
 
 }
+
+
 
 function myline(b,e) {
     let bp = funcorp(b);

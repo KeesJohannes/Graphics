@@ -100,18 +100,25 @@ function PosElements() {
     figcnt += 1
     let coefAValueX = hfatxtX + hfatxt.size().width + 15;
     let coefAValueY = formPosy + hfatxt.size().height;
-    hsaslider = createSlider(0,9,2,1)
+    hsaslider = createSlider(0,10,2,1)
     hsaslider.position(coefAValueX,coefAValueY);
     hsaslider.elt.addEventListener("change",changedepth);
-    //hsaslider["elt"]["max"] = "10"
-    //print("f",hsaslider["elt"]["max"])
     let coefAValueSize = hsaslider.size() 
 
+    //hsaslider.elt.setAttribute("max",1);
+    print(hsaslider.elt.getAttribute("max"))
+
     figcnt += 1
-    let but1 = createButton("Run")
+    but1 = createButton("Run")
     but1.position(formPosx,formPosy+figcnt*formPosdy)
-    but1.class("txt2")
+    but1.class('txt2')
     but1.mousePressed(herstart)
+    //but1.attribute("enabled","disabled");
+
+    but2 = createButton("Stop")
+    but2.position(formPosx+but1.width+20,formPosy+figcnt*formPosdy)
+    but2.class('txt2')
+    but2.mousePressed(stoppen)
 
     figcnt += 2;
     hfatxtbl = createP('Baseline:')
@@ -120,7 +127,6 @@ function PosElements() {
     //listValueX = formPosx + hfatxtbl.size().width
 
     let ctx;
-    let basesel;
     let keuze1 = ['straight line','triangle','square']
     basesel = createSelect();
     basesel.position(hfatxtbl.size().width+formPosx,formPosy+(figcnt+0.8)*formPosdy);
@@ -130,9 +136,10 @@ function PosElements() {
         basesel.option(keuze1[i]);    
     }
     basesel.changed(()=>{baselinefun(ctx,basesel,keuze1);changetxtB()});
+    //basesel.elt.setAttribute("disabled",true);
 
-    let bas = select("#img1")
-    var vas = document.getElementById("img1");
+    let bas = select("#img1");
+    let vas = bas.elt;
     ctx = vas.getContext("2d");
     bas.position(hfatxtbl.size().width+formPosx+130,formPosy+(figcnt)*formPosdy)
     ctx.fillStyle = "#000000"
@@ -146,7 +153,6 @@ function PosElements() {
     hfatxtml.position(formPosx,formPosy+figcnt*formPosdy);
 
     let ctxmd;
-    let mdsel;
     let keuze2 = ['roof','hole','dip','top','bounce']
     mdsel = createSelect();
     mdsel.position(hfatxtbl.size().width+formPosx,formPosy+(figcnt+0.8)*formPosdy);
@@ -157,7 +163,7 @@ function PosElements() {
     mdsel.changed(()=>{modellinefun(ctxmd,mdsel,keuze2);changetxtB()});
 
     let bas2 = select("#img2")
-    var vas2 = document.getElementById("img2");
+    let vas2 = bas2.elt;
     ctxmd = vas2.getContext("2d");
     bas2.position(hfatxtbl.size().width+formPosx+130,formPosy+(figcnt)*formPosdy)
     ctxmd.fillStyle = "#000000"
@@ -170,12 +176,34 @@ function PosElements() {
     hfbtxt.class("txt")
     hfbtxt.position(hfbtxtX,hfbtxtY)
 
-
     changedepth();
     changetxtB();
 
     baselinefun(ctx,basesel,keuze1);
     modellinefun(ctxmd,mdsel,keuze2);
+
+    tobedisabled = [but1,basesel,mdsel,hsaslider];
+    disable(tobedisabled)
+}
+
+function disable(elts) {
+    print("dis",elts)
+    elts.forEach(e=>{
+        e.attribute("enabled","disabled");
+        e.elt.setAttribute("disabled",true);
+    });
+    but2.elt.removeAttribute("disabled")
+    but2.attribute("enabled","enabled")
+}
+
+function enable(elts) {
+    print("en",elts);
+    elts.forEach(e=>{
+        e.elt.removeAttribute("disabled")
+        e.attribute("enabled","enabled")
+    });
+    but2.attribute("enabled","disabled");
+    but2.elt.setAttribute("disabled",true);
 }
 
 function modellinefun(ctx,bes,choices) {
@@ -194,13 +222,7 @@ function changetxtB() {
     nbrofpoints = (base.length-1)*pow(mdel.length,myk.depth);
     if (!gesloten) nbrofpoints++;
     hfbtxt.elt.innerHTML = txtB(nbrofpoints)
-//    let maxdepth = Math.floor(Math.log(3000/(base.length-1))/Math.log(mdel.length));
-//    if (hsaslider.value()>maxdepth) {
-//        hsaslider.value ( maxdepth);
-//        myk.depth = maxdepth;
-//    };
-    //hsaslider["elt"]["max"] = `${maxdepth}`
-    //print("x",hsaslider["elt"])
+    let maxdepth = Math.floor(Math.log(3000/(base.length-1))/Math.log(mdel.length));
 }
 
 function baselinefun(ctx,bes,choices) {
@@ -222,6 +244,12 @@ function changedepth() {
 
 function calcmaxdepth() {
     maxdepth = Math.floor(Math.log(3000/(base.length-1))/Math.log(mdel.length))
-    print("MaxDepth:",maxdepth);
+    //print("MaxDepth:",maxdepth);
     //return nbrofpoints;
+}
+
+function stoppen() {
+
+    noLoop();
+    enable(tobedisabled)
 }
