@@ -100,13 +100,10 @@ function PosElements() {
     figcnt += 1
     let coefAValueX = hfatxtX + hfatxt.size().width + 15;
     let coefAValueY = formPosy + hfatxt.size().height;
-    hsaslider = createSlider(0,10,2,1)
+    hsaslider = createSlider(0,12,2,1)
     hsaslider.position(coefAValueX,coefAValueY);
-    hsaslider.elt.addEventListener("change",changedepth);
+    hsaslider.elt.addEventListener("change",()=>{changedepth();changetxtB();});
     let coefAValueSize = hsaslider.size() 
-
-    //hsaslider.elt.setAttribute("max",1);
-    print(hsaslider.elt.getAttribute("max"))
 
     figcnt += 1
     but1 = createButton("Run")
@@ -124,7 +121,6 @@ function PosElements() {
     hfatxtbl = createP('Baseline:')
     hfatxtbl.class("txt")
     hfatxtbl.position(formPosx,formPosy+figcnt*formPosdy);
-    //listValueX = formPosx + hfatxtbl.size().width
 
     let ctx;
     let keuze1 = ['straight line','triangle','square']
@@ -135,8 +131,10 @@ function PosElements() {
     for (let i=0;i<keuze1.length;i++) {
         basesel.option(keuze1[i]);    
     }
-    basesel.changed(()=>{baselinefun(ctx,basesel,keuze1);changetxtB()});
-    //basesel.elt.setAttribute("disabled",true);
+    basesel.changed(()=>{baselinefun(ctx,basesel,keuze1);
+                         calcmaxdepth();
+                         setMaxSlider();
+                         changetxtB();});
 
     let bas = select("#img1");
     let vas = bas.elt;
@@ -159,8 +157,11 @@ function PosElements() {
     mdsel.class("txt")
     for (let i=0;i<keuze2.length;i++) {
         mdsel.option(keuze2[i]);    
-    }
-    mdsel.changed(()=>{modellinefun(ctxmd,mdsel,keuze2);changetxtB()});
+    };
+    mdsel.changed(()=>{modellinefun(ctxmd,mdsel,keuze2);
+                       calcmaxdepth();
+                       setMaxSlider();
+                       changetxtB();});
 
     let bas2 = select("#img2")
     let vas2 = bas2.elt;
@@ -187,7 +188,6 @@ function PosElements() {
 }
 
 function disable(elts) {
-    print("dis",elts)
     elts.forEach(e=>{
         e.attribute("enabled","disabled");
         e.elt.setAttribute("disabled",true);
@@ -197,7 +197,6 @@ function disable(elts) {
 }
 
 function enable(elts) {
-    print("en",elts);
     elts.forEach(e=>{
         e.elt.removeAttribute("disabled")
         e.attribute("enabled","enabled")
@@ -214,7 +213,6 @@ function modellinefun(ctx,bes,choices) {
     mdelList.drawbase(ctx,ind,1);
     mdel = bse
     mdel.splice(0,1);
-    calcmaxdepth();
     //herstart()
 };
 
@@ -222,7 +220,6 @@ function changetxtB() {
     nbrofpoints = (base.length-1)*pow(mdel.length,myk.depth);
     if (!gesloten) nbrofpoints++;
     hfbtxt.elt.innerHTML = txtB(nbrofpoints)
-    let maxdepth = Math.floor(Math.log(3000/(base.length-1))/Math.log(mdel.length));
 }
 
 function baselinefun(ctx,bes,choices) {
@@ -239,13 +236,19 @@ function changedepth() {
     let sa = hsaslider.value();
     myk.depth = sa; 
     hfatxt.elt.innerHTML = txtA(sa)
-    changetxtB();
 }
 
 function calcmaxdepth() {
-    maxdepth = Math.floor(Math.log(3000/(base.length-1))/Math.log(mdel.length))
-    //print("MaxDepth:",maxdepth);
-    //return nbrofpoints;
+    maxdepth = Math.ceil(Math.log(3000/(base.length-1))/Math.log(mdel.length))
+}
+
+function setMaxSlider() {
+    let s = hsaslider.value();
+    hsaslider.elt.setAttribute("max",maxdepth)
+    if (s>maxdepth) {
+        hsaslider.value(maxdepth);
+    }
+    changedepth();
 }
 
 function stoppen() {

@@ -9,6 +9,7 @@ gedaan = 0;
 dataList = null;
 mdelList = null;
 gesloten = false;
+maxdepth = 0;
 
 myk = null; 
 genroutine = null;
