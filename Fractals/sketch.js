@@ -14,12 +14,15 @@ maxdepth = 0;
 myk = null; 
 genroutine = null;
 funcorp = null;
+telpoints = 0;
 
 but1 = null;
 but2 = null;
 basesel = null;
 mdsel = 1;
 hsaslider = 1;
+dlcb = null;
+dlcbv = false;
 formPosx = 0;
 formPosy = 0;
 formPosdy = 20;
@@ -53,7 +56,7 @@ function fillData() {
         createVector(1,0),
         createVector(0,0)
         ]
-    );
+   );
 
     let mdelList = new choicedata();
     // roof 
@@ -149,7 +152,7 @@ function firststep() {
     myk.curpos = base[0];
     myk.firstpos = myk.curpos.copy();
 
-    funcorp = sizeOfDrawing(); // to determinee the size of the drawing and to make the scale function
+    funcorp = sizeOfDrawing(0); // to determinee the size of the drawing and to make the scale function
     myk.curpos = myk.firstpos.copy();
     genroutine = getsticks(); // this wil generate the drawing.
 }
@@ -177,10 +180,8 @@ function setup() {
     base = dataList.getData(0);
     mdel = mdelList.getData(0);
     mdel.splice(0,1);
-    //print(mdel);
     
     let basecanvas = createCanvas(siCanvas,siCanvas);
-    basecanvas.parent("cv")
 
     PosElements();
 
@@ -212,9 +213,8 @@ function* telling(g,d) {
 }
 
 function* getsticks() {
-    //print("g",mdel.length,myk.depth,Math.log(3000/(base.length-1))/Math.log(mdel.length))
-    let telpoints = 0;
-    for (tel=0;tel<base.length-1;tel++) { // length
+    telpoints = 0;
+    for (let tel=0;tel<base.length-1;tel++) { // length
         let bewaar = Array(myk.depth);
         let telp1 = (tel+1); //%base.length
         let lengte = base[telp1].dist(base[tel]);
@@ -236,18 +236,29 @@ function* getsticks() {
                     for (let i=k+1;i<bewaar.length;i++) bewaar[i] = {ind:-1,am:null};
                 }
                 g1 = am.g;
+                if (k==(cnt.length-2) && dlcbv) {
+                    yield {b:g1.b,e:g1.e,s:1,telpoints};
+                }
             }
             telpoints++;
-            yield {b:g1.b,e:g1.e}
+            yield {b:g1.b,e:g1.e,s:0,telpoints}
         } 
         myk.curpos = newpos;   
     } 
-    //telpoints++;
-    //print("tel",telpoints);
-}
+}    
 
 function draw() {
     
+    push();
+    fill(0);
+    stroke(0);
+    strokeWeight(0);
+    textStyle(NORMAL)
+    rect(170,470,240,30);
+    stroke(255)
+    fill(255);
+    text(`Aantal dp's: ${telpoints}`,180,490);
+    pop()
     let res = genroutine.next();
     if (res.done) {
         if (gedaan<=1) {
@@ -259,7 +270,13 @@ function draw() {
         }
     }
     let h = res.value;
-    myline(h.b,h.e);
+    if (h.s==0) {
+        myline(h.b,h.e);
+    } else {
+        stroke(color(255,0,0))
+        myline(h.b,h.e);
+        stroke(255);
+    }
 
 //    noLoop();
 

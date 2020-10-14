@@ -171,11 +171,19 @@ function PosElements() {
     ctxmd.strokeStyle = "#FFFFFF";
     ctxmd.lineWidth = 4;
 
+    figcnt++;
+    dlcb = createCheckbox('two levels',false);
+    dlcb.class("txt")
+    dlcb.changed(tlchange);
+    dlcb.position(hfatxtX,formPosy+(figcnt)*formPosdy+vas2.height)
+
+    figcnt += 2;
     hfbtxtX = hfatxtX;
     hfbtxtY = formPosy+(figcnt)*formPosdy+vas2.height;
     hfbtxt = createP("")
     hfbtxt.class("txt")
-    hfbtxt.position(hfbtxtX,hfbtxtY)
+    hfbtxt.position(hfbtxtX,hfbtxtY);
+
 
     changedepth();
     changetxtB();
@@ -183,8 +191,16 @@ function PosElements() {
     baselinefun(ctx,basesel,keuze1);
     modellinefun(ctxmd,mdsel,keuze2);
 
-    tobedisabled = [but1,basesel,mdsel,hsaslider];
+    tobedisabled = [but1,basesel,mdsel,hsaslider]; 
     disable(tobedisabled)
+}
+
+function tlchange() {
+    if (dlcb.checked()) {
+        dlcbv = true;
+    } else {
+        dlcbv = false;
+    }
 }
 
 function disable(elts) {
