@@ -106,6 +106,28 @@ function fillData() {
         createVector(1,0)
         ]
     );
+    // spike
+    mdelList.addData(
+        [
+        createVector(0,0),
+        createVector(0.5,0),
+        createVector(0.5,0.33),
+        createVector(0.5,0),
+        createVector(1,0)
+        ]
+    );
+    // split
+    mdelList.addData(
+        [
+        createVector(0,0),
+        createVector(0.5,0),
+        createVector(0.375,0.2165),
+        createVector(0.5,0),
+        createVector(0.625,0.2165),
+        createVector(0.5,0),
+        createVector(1,0)
+        ]
+    );
         
     return [dataList,mdelList];
 }

@@ -145,7 +145,7 @@ function PosElements() {
     hfatxtml.position(formPosx,formPosy+figcnt*formPosdy);
 
     let ctxmd;
-    let keuze2 = ['roof','hole','dip','top','bounce']
+    let keuze2 = ['roof','hole','dip','top','bounce','spike','split']
     let mdsel = createSelect();
     mdsel.position(formPosx+hfatxtbl.size().width,formPosy+(figcnt+0.8)*formPosdy);
     mdsel.class("txt")
