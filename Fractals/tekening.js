@@ -91,26 +91,22 @@ function PosElements() {
     textSize(18);
 
     let figcnt = 0
-    let hfatxtX = formPosx
-    let hfatxtY = formPosy
+    //let hfatxtX = formPosx
+    //let hfatxtY = formPosy
     hfatxt = createP(txtA(4))
     hfatxt.class("txt")
-    hfatxt.position(hfatxtX,hfatxtY)
+    hfatxt.position(formPosx,formPosy)
 
     figcnt += 1
-    let coefAValueX = hfatxtX + hfatxt.size().width + 15;
-    let coefAValueY = formPosy + hfatxt.size().height;
     hsaslider = createSlider(0,12,2,1)
-    hsaslider.position(coefAValueX,coefAValueY);
+    hsaslider.position(formPosx + hfatxt.size().width + 15,formPosy + hfatxt.size().height);
     hsaslider.elt.addEventListener("change",()=>{changedepth();changetxtB();});
-    let coefAValueSize = hsaslider.size() 
 
     figcnt += 1
-    but1 = createButton("Run")
+    let but1 = createButton("Run")
     but1.position(formPosx,formPosy+figcnt*formPosdy)
     but1.class('txt2')
     but1.mousePressed(herstart)
-    //but1.attribute("enabled","disabled");
 
     but2 = createButton("Stop")
     but2.position(formPosx+but1.width+20,formPosy+figcnt*formPosdy)
@@ -118,16 +114,14 @@ function PosElements() {
     but2.mousePressed(stoppen)
 
     figcnt += 2;
-    hfatxtbl = createP('Baseline:')
+    let hfatxtbl = createP('Baseline:')
     hfatxtbl.class("txt")
     hfatxtbl.position(formPosx,formPosy+figcnt*formPosdy);
 
-    let ctx;
     let keuze1 = ['straight line','triangle','square']
-    basesel = createSelect();
-    basesel.position(hfatxtbl.size().width+formPosx,formPosy+(figcnt+0.8)*formPosdy);
+    let basesel = createSelect();
+    basesel.position(formPosx+hfatxtbl.size().width,formPosy+(figcnt+0.8)*formPosdy);
     basesel.class("txt")
-    //basesel.background(color(0,255,0))
     for (let i=0;i<keuze1.length;i++) {
         basesel.option(keuze1[i]);    
     }
@@ -138,22 +132,22 @@ function PosElements() {
 
     let bas = select("#img1");
     let vas = bas.elt;
-    ctx = vas.getContext("2d");
-    bas.position(hfatxtbl.size().width+formPosx+130,formPosy+(figcnt)*formPosdy)
+    let ctx = vas.getContext("2d");
+    bas.position(formPosx+hfatxtbl.size().width+130,formPosy+(figcnt)*formPosdy)
     ctx.fillStyle = "#000000"
     ctx.strokeStyle = "#FFFFFF";
     ctx.lineWidth = 4;
 
     formPosy = formPosy+(figcnt+1)*formPosdy+vas.height;
     figcnt = 0;
-    hfatxtml = createP('Model:')
+    let hfatxtml = createP('Model:')
     hfatxtml.class("txt")
     hfatxtml.position(formPosx,formPosy+figcnt*formPosdy);
 
     let ctxmd;
     let keuze2 = ['roof','hole','dip','top','bounce']
-    mdsel = createSelect();
-    mdsel.position(hfatxtbl.size().width+formPosx,formPosy+(figcnt+0.8)*formPosdy);
+    let mdsel = createSelect();
+    mdsel.position(formPosx+hfatxtbl.size().width,formPosy+(figcnt+0.8)*formPosdy);
     mdsel.class("txt")
     for (let i=0;i<keuze2.length;i++) {
         mdsel.option(keuze2[i]);    
@@ -166,24 +160,21 @@ function PosElements() {
     let bas2 = select("#img2")
     let vas2 = bas2.elt;
     ctxmd = vas2.getContext("2d");
-    bas2.position(hfatxtbl.size().width+formPosx+130,formPosy+(figcnt)*formPosdy)
+    bas2.position(formPosx+hfatxtbl.size().width+130,formPosy+(figcnt)*formPosdy)
     ctxmd.fillStyle = "#000000"
     ctxmd.strokeStyle = "#FFFFFF";
     ctxmd.lineWidth = 4;
 
     figcnt++;
-    dlcb = createCheckbox('two levels',false);
+    let dlcb = createCheckbox('two levels',false);
     dlcb.class("txt")
-    dlcb.changed(tlchange);
-    dlcb.position(hfatxtX,formPosy+(figcnt)*formPosdy+vas2.height)
+    dlcb.changed(()=>{dlcbv = dlcb.checked();});
+    dlcb.position(formPosx,formPosy+(figcnt)*formPosdy+vas2.height)
 
     figcnt += 2;
-    hfbtxtX = hfatxtX;
-    hfbtxtY = formPosy+(figcnt)*formPosdy+vas2.height;
     hfbtxt = createP("")
     hfbtxt.class("txt")
-    hfbtxt.position(hfbtxtX,hfbtxtY);
-
+    hfbtxt.position(formPosx,formPosy+(figcnt)*formPosdy+vas2.height);
 
     changedepth();
     changetxtB();
@@ -193,14 +184,6 @@ function PosElements() {
 
     tobedisabled = [but1,basesel,mdsel,hsaslider]; 
     disable(tobedisabled)
-}
-
-function tlchange() {
-    if (dlcb.checked()) {
-        dlcbv = true;
-    } else {
-        dlcbv = false;
-    }
 }
 
 function disable(elts) {
@@ -229,7 +212,6 @@ function modellinefun(ctx,bes,choices) {
     mdelList.drawbase(ctx,ind,1);
     mdel = bse
     mdel.splice(0,1);
-    //herstart()
 };
 
 function changetxtB() {

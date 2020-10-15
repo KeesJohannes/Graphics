@@ -6,6 +6,7 @@ base = [];
 mdel = [];
 basearray = [];
 gedaan = 0;
+nbrofpoints = 0;
 dataList = null;
 mdelList = null;
 gesloten = false;
@@ -16,12 +17,8 @@ genroutine = null;
 funcorp = null;
 telpoints = 0;
 
-but1 = null;
 but2 = null;
-basesel = null;
-mdsel = 1;
 hsaslider = 1;
-dlcb = null;
 dlcbv = false;
 formPosx = 0;
 formPosy = 0;
@@ -243,6 +240,7 @@ function* getsticks() {
             telpoints++;
             yield {b:g1.b,e:g1.e,s:0,telpoints}
         } 
+        if (!gesloten) telpoints++;
         myk.curpos = newpos;   
     } 
 }    
@@ -257,7 +255,7 @@ function draw() {
     rect(170,470,240,30);
     stroke(255)
     fill(255);
-    text(`Aantal dp's: ${telpoints}`,180,490);
+    text(`Aantal dp's: ${telpoints+(gesloten?0:1)}`,180,490);
     pop()
     let res = genroutine.next();
     if (res.done) {
