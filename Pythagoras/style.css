@@ -1,0 +1,39 @@
+html, body {
+    margin: 0;
+    padding: 0.1;
+  }
+  canvas {
+    display: block;
+  }
+
+
+.txt {
+    color: black ;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+
+.txt2[enabled="enabled"] {
+  color: white ;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  font-weight: normal;
+  background-color: black;
+}
+
+.txt2[enabled="disabled"] {
+  color: gray ;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  font-weight: 100;
+  background-color: black;
+}
+
+.txt2 {
+  color: black ;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+}
