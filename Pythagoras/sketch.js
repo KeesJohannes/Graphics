@@ -1,24 +1,52 @@
 stack = [];
-level = 1;
-alpha = null;
+level = 7;
+alpha = 3.14/2;//(90+0)*3.14/180
+wissel = false;
+genroutine = null;
+fun = null;
 
 function setup() {
     
-    createCanvas(500,500);
-    //colorMode(HSB)
+    ori = window.matchMedia("(orientation: landscape)");
+    ori.addListener(()=>location.reload());
+
+    if (windowWidth > windowHeight) {
+        stand = 1; // (landscape)
+    } else {
+        stand = 0; //(portrait)
+    }
+
+    if (stand==0) { // portrait
+        formPosx = 10
+        formPosy = 520
+    } else { // landscape
+        formPosx = 520
+        formPosy = 10
+    }
+ 
+    cv = createCanvas(500,500);
+    cv.parent("myc");
+
+    StuurElementen();
+    alpha = (90+0)*PI/180; //PI/2+PI/6;
+    //colorMode(HSB,100)
+    startup();
+}
+
+function startup() {
+
+    clear();
     background(0);
     frameRate(25);
     noFill();
     stroke(255);
     
     translate(width/2,height/2);
-    alpha = PI/3;
-    level = 13;
+    //level = 10;
+
+    fun = defsize();
     
-    let p1 = createVector(-30,-220);
-    let p2 = createVector(30,-220);
-    mline(p1,p2);
-    stack = [{p1,p2,fig:"vk",level,alpha}];
+    genroutine = gentree(level,alpha); 
 
 }
 
@@ -27,47 +55,14 @@ function draw() {
     
     translate(width/2,height/2);
     stroke(255);
-    
-    if (stack.length>0) {
-        let hs = stack.length-1;
-        //hs = floor(random(stack.length));
-        let elm = stack[hs];
-        stack.splice(hs,1);
-        if (elm.fig=="vk") {
-            dovierkant(elm.p1,elm.p2,elm.alpha,elm.level);    
-        } else if (elm.fig=="dh") {
-            dodriehoek(elm.p1,elm.p2,elm.alpha,elm.level);                
-        }
-    } else {
-        console.log("einde");
+
+    let res = genroutine.next();
+    if (res.done) {
         noLoop();
+        return;    
     }
-}
-
-function dovierkant(p1,p2,alpha,level) {
-    if (level<=0) return
-    level--;
-    let l = p1.dist(p2);
-    let helling = p2.copy().sub(p1).heading();
-    let pb = mkbasisvk(l,helling); 
-    let rt = obj_translate(pb,p1);
-    mline(rt[0],rt[1]);
-    mline(rt[1],rt[2]);
-    mline(rt[2],rt[3]);
-    if (rt[1].dist(rt[2])>=5) { 
-        append(stack,{p1:rt[1],p2:rt[2],fig:"dh",level,alpha});
-    }
-}
-
-function dodriehoek(p1,p2,alpha,level) {
-    let l = p1.dist(p2);
-    let helling = p2.copy().sub(p1).heading();
-    let pb = mkbasisdh(l,helling,alpha); 
-    let rt = obj_translate(pb,p1);
-    mline(rt[0],rt[1]);
-    mline(rt[1],rt[2]);
-    append(stack,{p1:rt[0],p2:rt[1],fig:"vk",level,alpha:PI-alpha});
-    append(stack,{p1:rt[1],p2:rt[2],fig:"vk",level,alpha:PI-alpha});
+    let h = res.value;
+    mshape(h.rt)
 }
 
 function mkbasisvk(l,h) {
@@ -107,12 +102,22 @@ function obj_translate(obj,p) {
     return ret;
 }
 
-function mline(p1,p2) {
-    line(p1.x,-p1.y,p2.x,-p2.y);
-}
-
-function mcircle(p,r) {
-    circle(p.x,-p.y,r);    
+function mshape(pa) {
+    let pa1 = [];
+    for (p of pa) {
+        pa1.push(fun(p));
+    }
+    push()
+    vx = map(pa[0].x,-width/2,width/2,0,255);
+    vy = map(pa[0].y,-height/2,height/2,0,255);
+    if (pa.length==4) fill(color((vx+vy)/2,vx,vy));
+    else fill(color(vy,0,0))
+    beginShape();
+    for (p of pa1) {
+        vertex(cx(p),cy(p))
+    }
+    endShape(CLOSE)
+    pop()
 }
 
 function cx(p) {
@@ -121,4 +126,87 @@ function cx(p) {
 
 function cy(p) {
     return -p.y;    
+}
+
+function StuurElementen() {
+    
+    // label Angle:
+    let tk = createP("Angle:");
+    tk.parent("stuur");
+    tk.class("txt");
+    tk.position(formPosx,formPosy);
+
+    // Next slider
+    let sc = createSlider(-30,30,0,1);
+    sc.parent("stuur"); // x += tk.width
+    sc.position(formPosx+60,formPosy+20);
+    sc.elt.addEventListener("change",()=>{
+        let v = sc.value();
+        tk2.elt.innerHTML = `${v}`;
+        alpha = (90+v)*PI/180;
+    });
+
+    // next value of slider
+    let tk2 = createP("0");
+    tk2.parent("stuur");
+    tk2.class("txt");
+    tk2.position(formPosx+230,formPosy);
+    
+    // volgende regel:label Diepte: 
+    formPosy += 30;
+
+    let tk3 = createP("Depth:");
+    tk3.parent("stuur");
+    tk3.class("txt");
+    tk3.position(formPosx,formPosy);
+
+    // next slider
+    let sc1 = createSlider(0,14,7,1);
+    sc1.parent("stuur");
+    sc1.position(formPosx+60,formPosy+20);
+    sc1.elt.addEventListener("change",()=>{
+        let v = sc1.value();
+        tk4.elt.innerHTML = `${v}`;
+        level = int(v);
+    });
+
+    // next value of slider kleur
+    let tk4 = createP("7");
+    tk4.parent("stuur");
+    tk4.class("txt");
+    tk4.position(formPosx+230,formPosy);
+
+    // volgende regel
+    formPosy +=  50;
+
+    let wi = createCheckbox("Wissel",false);
+    wi.parent("stuur");
+    wi.class("txt");
+    wi.position(formPosx,formPosy);
+    wi.changed(()=>{
+        wissel = wi.checked();
+    })
+
+    formPosy += 40;
+    
+    let rn = createButton("Run");
+    rn.parent("stuur");
+    rn.class("txt");
+    rn.position(formPosx,formPosy);
+    rn.mousePressed(()=>{
+        startup();
+        loop();
+    });
+
+    let st = createButton("Stop");
+    st.parent("stuur");
+    st.class("txt");
+    st.position(formPosx+60,formPosy);
+    st.mousePressed(()=>{
+        noLoop();
+    });
+
+    // de volgende regel
+    formPosy += 40;
+
 }
