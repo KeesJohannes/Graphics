@@ -34,7 +34,6 @@ function* gentree(lv,al) {
             append(stack,{p1:rt[1],p2:rt[2],fig:"vk",level,alpha});               
         }
     }
-    console.log("einde");
             
 } // gentree
 
@@ -59,7 +58,6 @@ function defsize() {
         }
         res = gr.next();
     }
-    console.log(xmin,xmax,ymin,ymax);
     let hoogte = ymax-ymin;
     let breedte = xmax-xmin;
     let midx = (xmin+xmax)/2;

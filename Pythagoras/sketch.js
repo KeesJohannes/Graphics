@@ -4,6 +4,8 @@ alpha = 3.14/2;//(90+0)*3.14/180
 wissel = false;
 genroutine = null;
 fun = null;
+enable_items = null
+disable_item = null;
 
 function setup() {
     
@@ -46,6 +48,9 @@ function startup() {
 
     fun = defsize();
     
+    disable(enable_items());
+    enable(disable_item());
+
     genroutine = gentree(level,alpha); 
 
 }
@@ -59,6 +64,8 @@ function draw() {
     let res = genroutine.next();
     if (res.done) {
         noLoop();
+        enable(enable_items());
+        disable(disable_item());
         return;    
     }
     let h = res.value;
@@ -195,6 +202,8 @@ function StuurElementen() {
     rn.position(formPosx,formPosy);
     rn.mousePressed(()=>{
         startup();
+        disable([rn,wi,sc1,sc,tk]);
+        enable([st]);
         loop();
     });
 
@@ -204,9 +213,25 @@ function StuurElementen() {
     st.position(formPosx+60,formPosy);
     st.mousePressed(()=>{
         noLoop();
+        enable([rn,wi,sc1,sc,tk]);
+        disable([st]);
     });
 
     // de volgende regel
     formPosy += 40;
 
+    enable_items = (function() {return [rn,wi,sc1,sc,tk]});
+    disable_item = (function() {return [st]});
+
+    disable([rn,wi,sc1,sc,tk])
+    enable([st]);
+
+}
+
+function enable(clist) { 
+    for (c of clist) c.removeAttribute("disabled");
+}
+
+function disable(clist) {
+    for (c of clist) c.attribute("disabled",true);
 }
