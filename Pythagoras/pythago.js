@@ -4,19 +4,17 @@ function* gentree(lv,al) {
     stack = [{p1,p2,fig:"vk",level:lv,alpha:al}];
 
     while (stack.length>0) {
-        let hs = stack.length-1;
-        let elm = stack[hs];
-        stack.splice(hs,1);
+        let elm = stack.splice(stack.length-1,1)[0];
         p1 = elm.p1;
         p2 = elm.p2;
         let alpha = elm.alpha;
         let level = elm.level;
+        let lengte = p1.dist(p2);
+        let helling = p2.copy().sub(p1).heading();
         if (elm.fig=="vk") {
             if (level>0) {
                 level--;
-                let l = p1.dist(p2);
-                let helling = p2.copy().sub(p1).heading();
-                let pb = mkbasisvk(l,helling); 
+                let pb = mkbasisvk(lengte,helling); 
                 let rt = obj_translate(pb,p1);
                 yield {tp:"vk",rt};
                 if (rt[1].dist(rt[2])>=5) { 
@@ -24,9 +22,7 @@ function* gentree(lv,al) {
                 }
             }         
         } else if (elm.fig=="dh") {
-            let l = p1.dist(p2);
-            let helling = p2.copy().sub(p1).heading();
-            let pb = mkbasisdh(l,helling,alpha); 
+            let pb = mkbasisdh(lengte,helling,alpha); 
             let rt = obj_translate(pb,p1);
             yield {tp:"dh",rt};
             if (wissel) alpha = PI-alpha;
@@ -58,16 +54,29 @@ function defsize() {
         }
         res = gr.next();
     }
-    let hoogte = ymax-ymin;
-    let breedte = xmax-xmin;
-    let midx = (xmin+xmax)/2;
-    let midy = (ymin+ymax)/2;
-    let mid = createVector(midx,midy);
-    let factor = 500*0.9/max(hoogte,breedte);
-    let f = function(p) {
-        return p.copy().sub(mid).mult(factor);
-    };
-    return f;
+    let schuif = createVector((xmin+xmax)/2,(ymin+ymax)/2);
+    let factorb = width*0.9/(xmax-xmin);
+    let factorh = height*0.9/(ymax-ymin);
+    let factor = min(factorb,factorh);
 
+    let fillscreen = function() {
+        if (keepAR) {
+            //ft(factor,factor)
+            scale(factor)
+        } else {
+            //ft(factorb,factorh);
+            scale(factorb,factorh);
+        }
+        translate(-schuif.x,schuif.y);
+        scale(1,-1);    
+    }
+
+    let colorcoord = function(p) {
+        vx = map(p.x,xmin,xmax,0,255);
+        vy = map(p.y,ymin,ymax,0,255);
+        return {vx,vy};    
+    }
+
+    return {fillscreen,colorcoord};
 }
 

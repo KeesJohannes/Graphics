@@ -2,10 +2,15 @@ stack = [];
 level = 7;
 alpha = 3.14/2;//(90+0)*3.14/180
 wissel = false;
+keepAR = true;
 genroutine = null;
-fun = null;
+//fun = null;
 enable_items = null
 disable_item = null;
+schuif = null;
+factorb = null;
+factorh = null;
+factor = null;
 
 function setup() {
     
@@ -44,9 +49,8 @@ function startup() {
     stroke(255);
     
     translate(width/2,height/2);
-    //level = 10;
 
-    fun = defsize();
+    rsizefuns = defsize();
     
     disable(enable_items());
     enable(disable_item());
@@ -60,6 +64,7 @@ function draw() {
     
     translate(width/2,height/2);
     stroke(255);
+    rsizefuns.fillscreen(); // scales, translates 
 
     let res = genroutine.next();
     if (res.done) {
@@ -110,29 +115,16 @@ function obj_translate(obj,p) {
 }
 
 function mshape(pa) {
-    let pa1 = [];
-    for (p of pa) {
-        pa1.push(fun(p));
-    }
     push()
-    vx = map(pa[0].x,-width/2,width/2,0,255);
-    vy = map(pa[0].y,-height/2,height/2,0,255);
-    if (pa.length==4) fill(color((vx+vy)/2,vx,vy));
-    else fill(color(vy,0,0))
+    let v = rsizefuns.colorcoord(pa[0]);
+    if (pa.length==4) fill(color((v.vx+v.vy)/2,v.vx,v.vy));
+    else fill(color(v.vy,0,0))
     beginShape();
-    for (p of pa1) {
-        vertex(cx(p),cy(p))
+    for (p of pa) {
+        vertex(p.x,p.y);
     }
     endShape(CLOSE)
     pop()
-}
-
-function cx(p) {
-    return p.x;    
-}
-
-function cy(p) {
-    return -p.y;    
 }
 
 function StuurElementen() {
@@ -194,6 +186,15 @@ function StuurElementen() {
         wissel = wi.checked();
     })
 
+    // apct ratio behouden
+    let ar = createCheckbox("keep AR",true);
+    ar.parent("stuur");
+    ar.class("txt");
+    ar.position(formPosx+100,formPosy);
+    ar.changed(()=>{
+        keepAR = ar.checked();
+    })
+
     formPosy += 40;
     
     let rn = createButton("Run");
@@ -202,7 +203,7 @@ function StuurElementen() {
     rn.position(formPosx,formPosy);
     rn.mousePressed(()=>{
         startup();
-        disable([rn,wi,sc1,sc,tk]);
+        disable([rn,wi,ar,sc1,sc,tk]);
         enable([st]);
         loop();
     });
@@ -213,17 +214,17 @@ function StuurElementen() {
     st.position(formPosx+60,formPosy);
     st.mousePressed(()=>{
         noLoop();
-        enable([rn,wi,sc1,sc,tk]);
+        enable([rn,wi,ar,sc1,sc,tk]);
         disable([st]);
     });
 
     // de volgende regel
     formPosy += 40;
 
-    enable_items = (function() {return [rn,wi,sc1,sc,tk]});
+    enable_items = (function() {return [rn,wi,ar,sc1,sc,tk]});
     disable_item = (function() {return [st]});
 
-    disable([rn,wi,sc1,sc,tk])
+    disable([rn,wi,ar,sc1,sc,tk])
     enable([st]);
 
 }
