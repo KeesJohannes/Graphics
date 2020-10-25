@@ -90,7 +90,7 @@ function init() {
 // hang de muren van de meegegeven cel in de lijst.
 function addwallstolist(c) {
     for (m of c.muren) {
-        if (!m.isOnlLst) {
+        if (!m.isOnlLst && !m.zijkant) {
             wallslist.push(m);
             m.isOnList = true;
 //            console.log("wal toegevoegd:",m)
