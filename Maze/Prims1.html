@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head>
+  
+    <script language="javascript" type="text/javascript" src="../library/p5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../library/p5.dom.min.js"></script>
+    
+      <link rel="stylesheet" type="text/css" href="./style.css">
+      <meta charset="utf-8">
+  
+    </head>
+    <body>
+      <script language="javascript" type="text/javascript" src="Pims1.js"></script>
+      <script language="javascript" type="text/javascript" src="Objecten.js"></script>
+      <div id="myCanvas" style="float:left" ></div>
+      <div style="float:left" >
+        <h4 class="ml txt" class="ml" >  Prim's algorithm</h4>
+        <ol class="txt">
+          <li style="line-height: 1;">Choose a cell randomly</li>
+          <li style="line-height: 1;">Mark this cell as part of the maze and add its walls to the wall list.</li>
+          <li style="line-height: 1;">Choose randomly a wall for which exactly one cell is part of the maze.</li>
+          <li style="line-height: 1;">Make a door in the wall and mark the other cell as part of the maze.</li>
+          <li style="line-height: 1;">Add the other doors to the walllist. Continu with 3</li>
+        </ol>
+      </div>
+  </body>
+  </html>

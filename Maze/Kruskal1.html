@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head>
+  
+    <script language="javascript" type="text/javascript" src="../library/p5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../library/p5.dom.min.js"></script>
+    
+      <link rel="stylesheet" type="text/css" href="./style.css">
+      <meta charset="utf-8">
+  
+    </head>
+    <body>
+      <script language="javascript" type="text/javascript" src="Kruskal1.js"></script>
+      <script language="javascript" type="text/javascript" src="Objecten.js"></script>
+      <div id="myCanvas" style="float:left" ></div>
+      <div style="float:left" >
+        <h4 class="ml txt" class="ml" >  Kruskal's algorithm</h4>
+        <ol class="txt">
+          <li style="line-height: 1;">  Generate for each cel a group with a list of just that one cel.</li>
+          <li style="line-height: 1;">  Walk through all the  walls in a randomized order.  </li>
+          <li style="line-height: 1;">  Look for the first wall in this list where the groupnumber of the two cells are different.</li>
+          <li style="line-height: 1;">  if not found, than finished</li>
+          <li style="line-height: 1;">  Otherwise: merge the lists of the two groups into one. Goto step 3.</li>
+        </ol>
+      </div>
+  </body>
+  </html>
