@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head>
+  
+    <script language="javascript" type="text/javascript" src="../library/p5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../library/p5.dom.min.js"></script>
+    
+      <link rel="stylesheet" type="text/css" href="./style.css">
+      <meta charset="utf-8">
+  
+    </head>
+    <body>
+      <script language="javascript" type="text/javascript" src="Wilsons2.js"></script>
+      <script language="javascript" type="text/javascript" src="Wilsonsstuur.js"></script>
+      <div id="myCanvas" style="float:left" ></div>
+      <div style="float:left" >
+        <h4 class="ml txt" class="ml" >  Wilson's algorithm</h4>
+        <ol class="txt">
+          <li style="line-height: 1;">Choose arbitrary a cell as part of the maze.</li>
+          <li style="line-height: 1;">Pick a random cel and generate from there a random path.</li>
+          <li style="line-height: 1;">When the path hits a maze, the path without any loops becomes part of the maze.</li>
+          <li style="line-height: 1;">When any cells not used are left goto step 2</li>
+        </ol>
+      </div>
+      <div id="stuur"></div>
+  </body>
+  </html>

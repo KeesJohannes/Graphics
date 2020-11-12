@@ -16,8 +16,10 @@
         <ol class="txt">
           <li style="line-height: 1;">Choose a cell randomly</li>
           <li style="line-height: 1;">Mark this cell as part of the maze and add its walls to the wall list.</li>
-          <li style="line-height: 1;">Choose randomly a wall for which exactly one cell is part of the maze.</li>
-          <li style="line-height: 1;">Make a door in the wall and mark the other cell as part of the maze.</li>
+          <li style="line-height: 1;">Choose randomly a wall from the walllist and remove this wall from the wallist.</li>
+          <li style="line-height: 1;">If the neighbouring cells are both on the map or both are not on the map continue with step 3.
+          <li style="line-height: 1;">If one is on the map and the orther not then put the latter one on the map.> </li>
+          <li style="line-height: 1;">   then make a door in the wall and mark both cells as part of the maze.</li>
           <li style="line-height: 1;">Add the other doors to the walllist. Continu with 3</li>
         </ol>
       </div>

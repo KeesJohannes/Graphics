@@ -43,7 +43,7 @@ function setup() {
 function startup() {
 
     clear();
-    background(0);
+    background(200);
     frameRate(25);
     noFill();
     stroke(255);
@@ -56,7 +56,6 @@ function startup() {
     enable(disable_item());
 
     genroutine = gentree(level,alpha); 
-
 }
 
 
@@ -76,6 +75,7 @@ function draw() {
     let h = res.value;
     mshape(h.rt)
 }
+
 
 function mkbasisvk(l,h) {
     let tb = [

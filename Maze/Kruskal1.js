@@ -17,6 +17,7 @@ var groepen;
 var muren; 
 var aantal;
 var wallstoselect
+var te;
 var pg1;
 var pg2;
 var pg;
@@ -25,8 +26,8 @@ var pg;
 function init() {
     aantal = 2*17*17+1; // watchdoc
 
-    cv = 16; // aantal cellen horizontaal
-    ch = 16; // aantal cellen vertikaal
+    cv = 8; // aantal cellen horizontaal
+    ch = 8; // aantal cellen vertikaal
 
     factorx = width/(ch+2); // omzetting muurcoord naar canvas coord.
     factory = height/(cv+2);; // idem
@@ -87,6 +88,8 @@ function init() {
     // de lijst van muren waar het algorithme van Kruskal willekeurig doorheen loopt.
     wallstoselect = randomize(muren.filter(m=>!m.zijkant));
 
+    te = new pijltje();
+
 } // init
 
 // shuffle de lijst.
@@ -127,7 +130,7 @@ function setup() {
     noFill()
     textSize(15)
 
-    teken(); // draw the board inlusive the groupnumbers
+    teken(); // draw the board without the groupnumbers
     
 }
 
@@ -163,17 +166,37 @@ function draw() {
     var rnl;
     if (wl.buren[0].groep != wl.buren[1].groep) { // groups to combine 
         wl.present = false; // hak een deur in de muur
+        var curpijl = {p:wl.buren[0],q:wl.buren[1]};
+        if (curpijl.p.groep>curpijl.q.groep) {
+            curpijl = {p:curpijl.q,q:curpijl.p};
+        }
+        var curwal = wl; // een gat in de muur
         rnl = groeprename(wl.buren[1].groep,wl.buren[0].groep);
         rnl.forEach(c=>c.notext = true); // indicatie the wall has changed 
+
+        var p1 = curwal.p1;
+        var p2 = curwal.p2;
+        noStroke()
+        fill(0)
+        var pm = p5.Vector.add(p1,p2).mult(0.5);
+        var v = (p1.x==p2.x)
+        // clear the port
+        rectMode(CENTER)
+        rect((pm.x+1)*factorx,(pm.y+1)*factory,v?0.1*factorx:0.7*factorx,v?0.7*factory:0.1*factory)
+    
+        fill(color(255,0,0))
+        stroke(color(255,0,0))
+        te.draw(curpijl.p,curpijl.q) // teken een pijltje
+    
     }
 
-    clear();
-    background(0);
+    //clear();
+    //background(0);
     stroke(255);
     strokeWeight(1)
     noFill()
     textSize(12)
-    teken(); // drae the changed board.
+    //teken(); // drae the changed board.
 
     //noLoop();
 
@@ -203,7 +226,7 @@ function teken() {
         muren[i].draw();
     }
 
-    cellen.filter(c=>!c.buiten).forEach(c=>c.drawtext());
+    //cellen.filter(c=>!c.buiten).forEach(c=>c.drawtext());
 }
 
 
