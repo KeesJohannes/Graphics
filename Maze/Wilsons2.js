@@ -1,13 +1,5 @@
-var ch = 7;
-var cv = 7;
-var maxh = 2 * ch - 1;
-var maxv = 2 * cv - 1;
-var ph = 2 * (ch + 2);
-var pv = 2 * (cv + 2);
 const breedte = 600;
 const hoogte = 600;
-var factorx = breedte / ph;
-var factory = hoogte / pv;
 const mazekleur = "#FF0000"; //color(255,0,0);
 const firstkleur = "#FF00FF"; //color(255,0,255)
 const pathkleur = "#EE9999"; // color(200,100,100)
@@ -17,15 +9,14 @@ const arrowdikte = 0.15;
 const arrowlengte = 0.2;
 const maxaantal = 30;
 
-function calcvars() {
-    maxh = 2 * ch - 1;
-    maxv = 2 * cv - 1;
-    ph = 2 * (ch + 2);
-    pv = 2 * (cv + 2);
-    factorx = breedte / ph;
-    factory = hoogte / pv;
-}
-
+var ch = 7;
+var cv = 7;
+var maxh = 2 * ch - 1;
+var maxv = 2 * cv - 1;
+var ph = 2 * (ch + 2);
+var pv = 2 * (cv + 2);
+var factorx = breedte / ph;
+var factory = hoogte / pv;
 var speed = 2;
 var cnvs;
 var fieldList;
@@ -35,9 +26,18 @@ var lookUpDoor = []; // x,y entry for each door.
 var currentpad;
 var pijl; // = new pijltje();
 var gendraw;
+var gms;
 var aantal = maxaantal
 var txtDiv;
 
+function calcvars() {
+    maxh = 2 * ch - 1;
+    maxv = 2 * cv - 1;
+    ph = 2 * (ch + 2);
+    pv = 2 * (cv + 2);
+    factorx = breedte / ph;
+    factory = hoogte / pv;
+}
 
 function getField(x, y) {
     return lookUpField[x][y];
@@ -61,42 +61,26 @@ function ball(p, c, r = 0.7) {
     circle(todx(p.x), tody(p.y), factorx * r)
 }
 
-function drawgame() {
-    clear()
+function setCanvas() {
     background(0)
     stroke(255);
     fill(0);
-
-    drawgame1();
 }
 
-function drawgame1() {
+function drawTheGame() {
 
     for (var h of fieldList) h.draw();
     for (var d of doors) d.draw();
 }
 
-function init() {
+function resetGameDrawing() {
+    clear()
+    setCanvas();
 
-    calcvars();
-
-    cnvs = createCanvas(breedte, hoogte);
-    cnvs.parent("myCanvas");
-
-    frameRate(speed);
-
-
-    WStuurElementen();
-
-    restart();
-
+    drawTheGame();
 }
 
-function restart() {
-
-    background(0);
-    stroke(255);
-    fill(0);
+function setupGameTables() {
 
     // generate the field objects
     lookUpField = Array(ph);
@@ -136,120 +120,31 @@ function restart() {
             lookUpDoor[x][y] = d;
         }
     }
+}
+
+function restart() {
+
+    setupGameTables()
 
     gendraw = gdraw();
 
-    drawgame()
+    resetGameDrawing()
 
-} // retstart
+} // restart
 
-class pijltje {
-    static pijldikte = 0.05;
-    static pijllengte = 0.7;
-    static arrowdikte = 0.15;
-    static arrowlengte = 0.2;
+function init() {
 
-    constructor() {
-        this.p = [];
-        this.p[0] = createVector(0, -pijltje.pijldikte / 2);
-        this.p[1] = createVector(pijltje.pijllengte, this.p[0].y);
-        this.p[2] = createVector(this.p[1].x, this.p[1].y - pijltje.arrowdikte);
-        this.p[3] = createVector(this.p[2].x + pijltje.arrowlengte, 0);
-        this.p[4] = createVector(this.p[2].x, -this.p[2].y);
-        this.p[5] = createVector(this.p[1].x, -this.p[1].y);
-        this.p[6] = createVector(this.p[0].x, -this.p[0].y);
-    }
+    calcvars();
 
-    draw(b, e) {
-        var ri;
-        if (b.x == e.x) {
-            if (b.y > e.y) ri = 1;
-            else ri = 3;
-        } else {
-            if (b.x > e.x) ri = 2;
-            else ri = 0;
-        }
-        beginShape();
-        for (var h of this.p) {
-            var k = h.copy().mult(2).rotate(-ri * PI * 0.5);
-            vertex((b.x + k.x + 2) * factorx, (b.y + k.y + 2) * factory);
-        }
-        endShape(CLOSE)
-    }
-} // pijltje
+    cnvs = createCanvas(breedte, hoogte);
+    cnvs.parent("myCanvas");
 
-class field {
+    frameRate(speed);
 
-    constructor(x, y) {
-        this.x = x
-        this.y = y;
-        this.p = createVector(x, y);
-        this.ri = null; // de richting dat het pad volgt.
-        this.mark = false; // er wordt een pad gebouwd met dit element
-        this.maze = false; // is onderdeel van de maze
-        this.first = false; // is het eerste field van een pad
-    }
+    WStuurElementen();
+    restart();
 
-
-    draw() {
-        push()
-        if (this.maze) {
-            ball(this.p, mazekleur, 0.5); //color(255,0,0));
-        } else if (this.mark) {
-            if (this.first) {
-                ball(this.p, firstkleur, 0.5); //color(255,0,255)
-            } else {
-                ball(this.p, pathkleur, 0.5); // color(200,100,100)
-            }
-        }
-        pop();
-
-        if (this.ri) {
-            push();
-            var c;
-            if (this.mark) c = pathkleur;
-            else if (this.maze) c = mazekleur;
-            if (this.mark || this.maze) {
-                stroke(c);
-                fill(c);
-            };
-            var p1 = this.p.copy().add(this.ri);
-            pijl.draw(this.p, p1, color(0, 255, 0));
-            pop();
-        }
-    } // draw
-} // field
-
-class door {
-    constructor(x, y) {
-        this.x = x
-        this.y = y;
-        this.p = createVector(x, y);
-        this.deur = false;
-        this.zijkant = (x==0) || (y==0) || (x==2*ch) || (y==2*cv)
-     }
-
-    draw() {
-        push();
-        if (this.zijkant) strokeWeight(3);
-        if (even(this.x)) {
-            if (this.deur) {
-                line(todx(this.x), tody(this.y - 1), todx(this.x), tody(this.y - 0.5));
-                line(todx(this.x), tody(this.y + 0.5), todx(this.x), tody(this.y + 1));
-            } else {
-                line(todx(this.x), tody(this.y - 1), todx(this.x), tody(this.y + 1));
-            }
-        } else {
-            if (this.deur) {
-                line(todx(this.x - 1), tody(this.y), todx(this.x - 0.5), tody(this.y));
-                line(todx(this.x + 0.5), tody(this.y), todx(this.x + 1), tody(this.y));
-            } else {
-                line(todx(this.x - 1), tody(this.y), todx(this.x + 1), tody(this.y));
-            }
-        }
-        pop();
-    }
-} // door
+} // init
 
 function setup() {
 
@@ -260,9 +155,7 @@ function setup() {
     // x coordinaat even, y coordinaat oneven: horizontale afscheiding
     // x coordinaat even, y coorinaat even: centre cel
 
-
 } // setup
-
 
 function getFirstPad() {
 
@@ -345,13 +238,15 @@ function consolodatePath() {
 
 
 function* gdraw() {
-    yield 0; // drawgame empty
+    yield gamepart.opgestart;
+    0; // game empty
 
     // the first field of the game
     var mm = random(fieldList)
     mm.maze = true
+    mm.firstmaze = true;
 
-    yield 1; // the first maze is there
+    yield gamepart.firstmaze; // the first maze is there
 
     while (fieldList.filter(f => !f.maze).length > 0) { // as long as there are empty fields
         currentpad = getFirstPad(); //  use the first available nomarkt field.
@@ -376,49 +271,60 @@ function* gdraw() {
             currentpad.ri = next.p.copy().sub(currentpad.p);
             next.mark = true;
             currentpad = next;
-            yield 5; //progress: pad verlengd met 1 field
+            yield gamepart.paditem; //progress: pad verlengd met 1 field
         }
-        yield 7; // maze gevonden
+        yield gamepart.foundmaze; // maze gevonden
         consolodatePath();
         aantal = maxaantal;
-        yield 8; // pad gemaakt
+        yield gamepart.padmade; // pad gemaakt
     }
-    return 9;
+    return gamepart.mazedone;
     // done wordt true
-} // gdraw
+} // 
 
-//var info
+function message1(aantal) {
+    return `Number of non Maze fields : ${aantal}`
+};
+
 function draw() {
-
+    var info
     clear()
-    background(0)
-    stroke(255);
-    fill(0);
-
-    var info = gendraw.next();
-    drawgame1();
-    if (info.value == 4) {
-        print("finished with error");
-        noLoop();
-        return
-    };
-    if (info.value == 6) {
-        print("finished with error");
-        noLoop();
-        return
-    };
-    if (info.value == 8) {
-        print("searching");
-    };
-    if (info.value == 9) {
-        print("finished without error");
-        noLoop();
-        return
-    };
-    if (info.done) {
-        print("finished without error");
-        noLoop()
-    };
+    setCanvas();
+    if (showdet) {
+        info = gms.next();
+        drawTheGame();
+        //print("i",info,stopnbrs)
+        if (info.done || stopnbrs.findIndex(e => e == info.value) >= 0) {
+            noLoop();
+        }
+    } else {
+        info = gendraw.next();
+        drawTheGame();
+        if (info.value == 4) {
+            print("finished with error");
+            noLoop();
+            return
+        };
+        if (info.value == 6) {
+            print("finished with error");
+            noLoop();
+            return
+        };
+        if (info.value == 8) {
+            //print("searching");
+        };
+        if (info.value == 9) {
+            print("finished without error");
+            noLoop();
+            return
+        };
+        if (info.done) {
+            print("finished without error");
+            sf.elt.innerText = "Status: finished";
+            noLoop()
+        };
+    }
+    var anzahl = fieldList.filter(h => !h.maze && !h.mark).length;
+    sf.elt.innerText = message1(anzahl);
     return;
-
 }

@@ -35,7 +35,7 @@ div.b {
     'menu main main main right right'
     'menu main main main right right'
     'menu main main main right right'
-    'menu footer footer footer footer footer';
+    'footerl footerm footerm footerm footerr footerr';
   grid-gap: 2px;
   background-color: #3096a3;
   padding: 2px;
@@ -56,11 +56,17 @@ h4 {
 .item2 { grid-area: menu; }
 .item3 { grid-area: main; font-size: 40px;line-height: 0.5;}
 .item4 { grid-area: right; }
-.item5 { grid-area: footer; font-size: 20pt;}
+.item5 { grid-area: footerl; font-size: 20pt;text-align: left;}
+.item6 { grid-area: footerm; font-size: 20pt;}
+.item7 { grid-area: footerr; font-size: 20pt;text-align: right;}
 
 canvas {
   display: block;
   color: blue;
   background-color: black;
   border:1px solid #000000;
+}
+
+.nua {
+  text-decoration: none;
 }
