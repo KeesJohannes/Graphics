@@ -22,19 +22,39 @@ html, body {
     line-height: 70%;
   }
   
-.txt {
+  .txt4[kleur="donker"] {
+    color: black ;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .txt4[kleur="licht"] {
+    color: black ;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight:normal ;
+  }
+
+  .txt {
     color: black ;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 18px;
     font-weight: bold;
 }
 
+.txt1 {
+  color: black ;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+}
 
 .txt1[enabled="disabled"] {
-  color: gray ;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 18px;
   font-weight: 100;
+  color: red;
   background-color: black;
 }
 
@@ -47,11 +67,21 @@ html, body {
   background-color: black;
 }
 
-.txt1 {
+
+.txt3 {
   color: black ;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 18px;
   font-weight: bold;
+  background-color: white;
+}
+
+.txt3[disabled=True] {
+  color: gray ;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: 100;
+  background-color: white;
 }
 
 .txt2[enabled="disabled"] {
