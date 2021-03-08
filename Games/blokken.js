@@ -14,8 +14,11 @@ let blokken =
 
 let config  = {gat:{c:cols,r:2}};
 let blokselect = null;
+let saveblokken = [];
 let displ = null;
-
+let zwartweg = false;
+let aantalmoves = 0;
+let txtresult = null;
 //
 // PRESENTATION
 //
@@ -24,14 +27,42 @@ let displ = null;
 function setup()
 {
 	createCanvas(500,500);
+	txtresult = createP(`Number of moves: ${aantalmoves}`);
+	txtresult.position(width+10,0)
+	but1 = createButton("opnieuw")
+	but1.position(width+10,50);
+	but1.mouseClicked(()=>{
+		blokselect = null;
+		displ = null;
+		zwartweg = false;
+		aantalmoves = 0;
+		blokken = saveblokken.map(r=>{
+			let h = {};
+			for (let [k,v] of Object.entries(r)) {
+				h[k] =  v;
+			};
+			return h;
+		});
+		wriggleSpace(blokken);		
+		showPlay(blokken);
+		txtresult.elt.innerHTML = `Number of moves: ${aantalmoves}`;
+		loop();
+	})
 	background(backclr);
 
 	config = loadini();
-	blokken = config.blokken	
+	blokken = config.blokken;
+	saveblokken = blokken.map(r=>{
+		let h = {};
+		for (let [k,v] of Object.entries(r)) {
+			h[k] =  v;
+		};
+		return h;
+	});
 	wriggleSpace(blokken);
 
 	showPlay(blokken);
-	frameRate(10);
+	frameRate(20);
 }
 
 function showPlay(blk) {
@@ -86,14 +117,21 @@ function showBlok(blk,ind,clear=false,displ=null) {
 	textAlign(CENTER,CENTER);
 	text(ind,tx,ty)
 }
-/*
+
 function draw() {
 	if (displ) return;
 	clear();
 	background(backclr);
+	if (zwartweg) {
+		let b = blokken[0];
+		b.x += 0.1;
+		if (b.x>cols+1) {
+			noLoop();
+		}
+	}
 	showPlay(blokken);
 }
-*/
+
 //
 // CALCULATION
 //
@@ -181,12 +219,23 @@ function mouseReleased() {
 		showBlok(blokselect.blks,blokselect.ind,true,displ)
 		let ind = blokselect.ind;
 		let b = blokselect.blks[ind];
+		let bnx = Math.floor(rcx(cx(b.x)+displ.posc.x-displ.poso.x)+0.5);
+		let bny = Math.floor(rcy(cy(b.y)+displ.posc.y-displ.poso.y)+0.5);
+		if (!(b.x==bnx && b.y==bny)) {
+			aantalmoves++
+			txtresult.elt.innerHTML = `Number of moves: ${aantalmoves}`
+		}
 		b.x = Math.floor(rcx(cx(b.x)+displ.posc.x-displ.poso.x)+0.5);
 		b.y = Math.floor(rcy(cy(b.y)+displ.posc.y-displ.poso.y)+0.5);
 		wriggleSpace(blokselect.blks)
 		showBlok(blokselect.blks,ind);
 		blokselect = null;
 		displ = null;
+		if (ind==0) {
+			if (b.x+b.w==cols) {
+				zwartweg = true;			
+			}
+		}
     }
 }
 
