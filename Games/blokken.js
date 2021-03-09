@@ -1,6 +1,7 @@
 let blokkenstrings = "";
+let blokfiles = [];
 function preload() {
-    blokkenstrings = loadStrings("blok.txt")
+	blokfiles = loadJSON("blokfiles.txt")
 }
 let backclr = "#773377";
 let cols = 6;
@@ -19,6 +20,9 @@ let displ = null;
 let zwartweg = false;
 let aantalmoves = 0;
 let txtresult = null;
+let selgame;
+let txt;
+let txtstr = "Moves:<br>"
 //
 // PRESENTATION
 //
@@ -26,31 +30,33 @@ let txtresult = null;
 //Called when application is started.
 function setup()
 {
-	createCanvas(500,500);
-	txtresult = createP(`Number of moves: ${aantalmoves}`);
-	txtresult.position(width+10,0)
-	but1 = createButton("opnieuw")
-	but1.position(width+10,50);
-	but1.mouseClicked(()=>{
-		blokselect = null;
-		displ = null;
-		zwartweg = false;
-		aantalmoves = 0;
-		blokken = saveblokken.map(r=>{
-			let h = {};
-			for (let [k,v] of Object.entries(r)) {
-				h[k] =  v;
-			};
-			return h;
-		});
-		wriggleSpace(blokken);		
-		showPlay(blokken);
-		txtresult.elt.innerHTML = `Number of moves: ${aantalmoves}`;
-		loop();
-	})
-	background(backclr);
+	cnv = createCanvas(500,500);
+	cnv.mousePressed(doMousePressed);
 
-	config = loadini();
+	selgame = createSelect();
+  	selgame.position(width+10, 0);
+	let bfa = Object.keys(blokfiles);
+	for (let i=0;i<bfa.length;i++) {
+		selgame.option(`game ${blokfiles[bfa[i]].game}`)
+	}
+	selgame.selected("game 1")
+  	selgame.changed(selectGame);
+	
+	txtresult = createP(`Number of moves: ${aantalmoves}`);
+	txtresult.position(width+10,50)
+	
+	but1 = createButton("opnieuw")
+	but1.position(width+10,100);
+	but1.touchStarted(opnieuw);
+	but1.mouseClicked(opnieuw)
+
+	txt = createP(txtstr);
+	txt.position(width+10,110)
+	
+	background(backclr);
+	selectGame();
+/*
+	config = loadini(0);
 	blokken = config.blokken;
 	saveblokken = blokken.map(r=>{
 		let h = {};
@@ -62,7 +68,27 @@ function setup()
 	wriggleSpace(blokken);
 
 	showPlay(blokken);
-	frameRate(20);
+*/	frameRate(20);
+}
+
+function opnieuw() {
+	blokselect = null;
+	displ = null;
+	zwartweg = false;
+	aantalmoves = 0;
+	txtstr = "Moves:<br>";
+	txt.elt.innerHTML = txtstr;
+	blokken = saveblokken.map(r=>{
+		let h = {};
+		for (let [k,v] of Object.entries(r)) {
+			h[k] =  v;
+		};
+		return h;
+	});
+	wriggleSpace(blokken);		
+	showPlay(blokken);
+	txtresult.elt.innerHTML = `Number of moves: ${aantalmoves}`;
+	loop();
 }
 
 function showPlay(blk) {
@@ -168,26 +194,41 @@ function getBlokInd(blks,x,y) {
     if (i<0) i=-1;
     return i
 }
+
+function selectGame() {
+	let g = selgame.value();
+	let gnbr = g.slice(4).trim();
+	config = loadini(gnbr);
+	blokken = config.blokken;
+	saveblokken = blokken.map(r=>{
+		let h = {};
+		for (let [k,v] of Object.entries(r)) {
+			h[k] =  v;
+		};
+		return h;
+	});
+	opnieuw();
+}
 	
-function loadini() {  
-//    let s = app.ReadFile("blok.txt");
-//    let sa = blokkenstrings.split("\n");
-    let gat = blokkenstrings[0].split(",").map(e=>Number(e));
+function loadini(gi) {  
+	let conf = Object.values(blokfiles).find(r=>r.game==gi)
+	let gat = conf.gate;
     let gatobj = {c:gat[0],r:gat[1],wi:gat[2],he:gat[3]};
     let config = {gat:gatobj}
-    blokkenstrings.splice(0,1);
-    let ba = blokkenstrings.map(r=>{
-        let ra = r.split(",");
-        return {x:Number(ra[0]),y:Number(ra[1]),w:Number(ra[2]),h:Number(ra[3])};
-    });
-    config.blokken = ba;
+    config.blokken = conf.bloks;
     return config;
 } // loadini
 
 //
 // MOVEMENT
 //
-function mousePressed() {
+function touchStarted() {
+	print("mousePressed")
+	doMousePressed();
+	return false;
+}
+
+function doMousePressed() {
     displ = {poso:{x:mouseX,y:mouseY},posc:{x:mouseX,y:mouseY}}; // the mouseposition
     let ind = getBlokInd(blokken,Math.floor(rcx(mouseX)),Math.floor(rcy(mouseY)));
     blokselect = {blks:blokken,ind,b:ind>=0?blokken[ind]:null};  
@@ -200,6 +241,7 @@ function mousePressed() {
 		displ.xmaxMuisScherm = cx(b.xmax) - xMouseBaseScherm; // x bovengrens
 		displ.ymaxMuisScherm = cy(b.ymax) - yMouseBaseScherm; // x
 	} 
+	return false;
 }
 
 function mouseDragged() {
@@ -212,6 +254,7 @@ function mouseDragged() {
         displ.posc.y = y;
         showBlok(blokselect.blks,blokselect.ind,false,displ); // opnieuw tekenen
     }
+	return false;
 }
 
 function mouseReleased() {
@@ -224,6 +267,17 @@ function mouseReleased() {
 		if (!(b.x==bnx && b.y==bny)) {
 			aantalmoves++
 			txtresult.elt.innerHTML = `Number of moves: ${aantalmoves}`
+			let txtri;
+			let txtva;
+			if (bnx==b.x) {
+				txtri = (bny<b.y)?"U":"D"
+				txtva = Math.abs(bny-b.y)
+			} else {
+				txtri = (bnx<b.x)?"L":"R"
+				txtva = Math.abs(bnx-b.x)
+			}
+			txtstr +=`${ind}:${txtri}${txtva}<br>`
+			txt.elt.innerHTML = txtstr; 
 		}
 		b.x = Math.floor(rcx(cx(b.x)+displ.posc.x-displ.poso.x)+0.5);
 		b.y = Math.floor(rcy(cy(b.y)+displ.posc.y-displ.poso.y)+0.5);
@@ -237,6 +291,7 @@ function mouseReleased() {
 			}
 		}
     }
+	return false;
 }
 
 // scherm naar spel
