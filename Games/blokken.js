@@ -1,7 +1,7 @@
 let blokkenstrings = "";
 let blokfiles = [];
 function preload() {
-	blokfiles = loadJSON("blokfiles.txt")
+	blokfiles = loadJSON("blokfiles.json")
 }
 let backclr = "#773377";
 let cols = 6;
