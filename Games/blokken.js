@@ -1,27 +1,26 @@
 let blokkenstrings = "";
 let blokfiles = [];
 function preload() {
+	// [{game:identstring,gate:[x,y,w,h],bloks:[{x,y,w,h},...},...]
 	blokfiles = loadJSON("blokfiles.json")
 }
 let backclr = "#773377";
 let cols = 6;
 let rows = 6;
 
-let blokken = 
-	[
-		{x:2,y:2,w:3,h:1},
-		{x:2,y:3,w:1,h:3}
-	]
+// [{x,y},{x,y},....]
+let blokken = [] // de posities van de blokken (x,y)
+// [{w,h},{w,h},....]	
+let sizes = []; // de grootte van de blokken (width en height)
 
-let config  = {gat:{c:cols,r:2}};
+let config  = {game:"str",gat:{c:cols,r:2}}; // ??
 let blokselect = null;
-let saveblokken = [];
-let displ = null;
-let zwartweg = false;
-let aantalmoves = 0;
-let txtresult = null;
-let selgame;
-let txt;
+let displ = null; // de displacement van een bewegend blok.
+let zwartweg = false; // wanneer het zwarte blok het spel moet overlaten.
+let aantalmoves = 0; // telt het totaal aantal moves.
+let selgame; // adres create select 
+let txtresult; // voor eenvoudige 1 regelige opmerkingen
+let txt; // voor tekstdelen met verschillende regels
 let txtstr = "Moves:<br>"
 //
 // PRESENTATION
@@ -30,64 +29,58 @@ let txtstr = "Moves:<br>"
 //Called when application is started.
 function setup()
 {
-	cnv = createCanvas(500,500);
+	let cnv = createCanvas(500,500);
 	cnv.mousePressed(doMousePressed);
 
 	selgame = createSelect();
   	selgame.position(width+10, 0);
 	let bfa = Object.keys(blokfiles);
-	for (let i=0;i<bfa.length;i++) {
+	for (let i=0;i<bfa.length;i++) { // de attributen en hun waardes worden gcopieerd.
 		selgame.option(`game ${blokfiles[bfa[i]].game}`)
-	}
-	selgame.selected("game 1")
+	} // de namen van de geladen games.
+	selgame.selected("game 1"); //voorstel tot wijziging: apart attr dat de default aanwijst.
   	selgame.changed(selectGame);
 	
 	txtresult = createP(`Number of moves: ${aantalmoves}`);
 	txtresult.position(width+10,50)
 	
-	but1 = createButton("opnieuw")
+	but1 = createButton("Refresh")
 	but1.position(width+10,100);
-	but1.touchStarted(opnieuw);
-	but1.mouseClicked(opnieuw)
+	but1.touchStarted(()=>opnieuw()); //opnieuw: als een refresh van de pagina
+	but1.mouseClicked(()=>opnieuw())
 
-	txt = createP(txtstr);
-	txt.position(width+10,110)
+	but2 = createButton("Calculate a solution")
+	but2.position(width+10,130);
+	but2.mouseClicked(()=>genpath());
+	but2.mouseReleased(()=>genpath())
+
+	txt = createP(txtstr); // plek voor logging
+	txt.position(width+10,150)
 	
 	background(backclr);
-	selectGame();
-/*
-	config = loadini(0);
-	blokken = config.blokken;
-	saveblokken = blokken.map(r=>{
-		let h = {};
-		for (let [k,v] of Object.entries(r)) {
-			h[k] =  v;
-		};
-		return h;
-	});
-	wriggleSpace(blokken);
-
-	showPlay(blokken);
-*/	frameRate(20);
+	selectGame(); // doet ook de initialisatie 
+	frameRate(20);
 }
 
 function opnieuw() {
+	blokken = [];
+	sizes = [];
 	blokselect = null;
+	displ = null; // de displacement van een bewegend blok.
+	zwartweg = false; // wanneer het zwarte blok het spel moet overlaten.
+	aantalmoves = 0; // telt het totaal aantal moves.
+	txtstr = "Moves:<br>"
 	displ = null;
 	zwartweg = false;
 	aantalmoves = 0;
 	txtstr = "Moves:<br>";
 	txt.elt.innerHTML = txtstr;
-	blokken = saveblokken.map(r=>{
-		let h = {};
-		for (let [k,v] of Object.entries(r)) {
-			h[k] =  v;
-		};
-		return h;
-	});
+	blokken = config.blokken.map(b=>deepCopy(b));
+	sizes = config.sizes;
 	wriggleSpace(blokken);		
 	showPlay(blokken);
 	txtresult.elt.innerHTML = `Number of moves: ${aantalmoves}`;
+	initCalc()
 	loop();
 }
 
@@ -118,6 +111,7 @@ function drawgat() {
 
 function showBlok(blk,ind,clear=false,displ=null) {
     let b = blk[ind];
+	let s = sizes[ind];
 	if (clear) {
 	    fill( backclr );
 	} else if (ind==0) {
@@ -135,27 +129,114 @@ function showBlok(blk,ind,clear=false,displ=null) {
 	}
 	rect(
 	    cx(b.x+rx)+dx,cy(b.y+ry)+dy,
-		cx(b.x+b.w-rx)+dx,cy(b.y+b.h-ry)+dy );
-	let tx = (cx(b.x+rx)+dx+cx(b.x+b.w-rx)+dx)/2;
-	let ty = (cy(b.y+ry)+dy+cy(b.y+b.h-ry)+dy)/2;
+		cx(b.x+s.w-rx)+dx,cy(b.y+s.h-ry)+dy );
+	let tx = (cx(b.x+rx)+dx+cx(b.x+s.w-rx)+dx)/2;
+	let ty = (cy(b.y+ry)+dy+cy(b.y+s.h-ry)+dy)/2;
 	fill("black")
 	if (ind==0) fill("white")
 	textAlign(CENTER,CENTER);
 	text(ind,tx,ty)
 }
 
-function draw() {
-	if (displ) return;
-	clear();
-	background(backclr);
-	if (zwartweg) {
-		let b = blokken[0];
-		b.x += 0.1;
-		if (b.x>cols+1) {
-			noLoop();
-		}
+function genpath() {
+	if (!calc) {
+		calcstatus = 0;
+		calc = true; // hierdoor wordt in draw het pad berekend.
+	} else if (calcstatus==2) {
+		clicked = true; // hierdoor wordt de volgende stap in draw getoond
 	}
-	showPlay(blokken);
+}
+//
+// de draw routine moet de volgende statussen vewerken:
+// displ => return
+// calc => aantal stappen uitrekenen en tonen.
+// !calc => toon de balken. Ventueel opgeschoven..
+//
+// de genpath routine moet het uitrekenen en tonen van de route velden ondersteunen.
+//
+function initCalc() {
+	calc = false;
+	clicked = false;
+	calccounter = -2;
+	calcobject = null;
+	calcstatus = -1;
+	calcresult = null;
+//	blokkencopy = [];
+}
+/*
+let calc = false;
+clicked = false;
+let calccounter = -2;
+calcobject = null;
+calcstatus = -1;
+calcresult = null;
+blokkencopy = [];
+*/
+function draw() {
+	if (displ) 	{return;}
+	if (calc) {
+		// aantal stappen uitrekenen en tonen
+		if (calcstatus==0) { // uitrekenen
+			calcobject = calcpath(blokken);
+			calcstatus = 1;
+			txt.elt.innerHTML = `Laat mij even nadenken....`
+			calcresult = calcobject.next()
+		} else if (calcstatus==1) { // opvragen gegevens
+			if (calcresult.done) {
+				txt.elt.innerHTML = 
+					`Een pad gevonden na ${ret_value.length} stappen.`
+				//calc = false;
+				calcstatus = 2; // het presenteren van de gegevens
+				point = 0;
+/*				blokkencopy = blokken.map(b=>{
+					let r = {};
+					for (let [k,v] of Object.entries(b)) {
+						r[k] = v;
+					}
+					return r;			
+				});
+*/			} else {
+				txt.elt.innerHTML = 
+					`Aantal configuraties na ${calcresult.value[1]} ` +
+					`steppen is ${calcresult.value[0]}`;
+				calcresult = calcobject.next();
+			}
+		} else if (calcstatus==2) { // het presenteren van de gegevens
+			if (clicked) {
+				clicked = false;
+				if (point<ret_value.length) {
+					let nblk = ret_value[point++];
+					let old = {x:blokken[nblk[0]].x,y:blokken[nblk[0]].y};
+					let nieuw = {x:nblk[1],y:nblk[2]};
+					blokken[nblk[0]].x = nblk[1];
+					blokken[nblk[0]].y = nblk[2];
+					updatelist(point,nblk[0],nieuw.x,nieuw.y,old)
+					showPlay(blokken);
+					if (blokken[0].x==4 && blokken[0].y==2) {
+						zwartweg  = true;
+						print("zw",zwartweg)
+						calc = false;
+						calcstatus = 0
+						}
+				} else {
+					calc = false;
+					calcstatus = 0
+					//blokken = blokkencopy;
+				}
+			}
+		}
+	} else {
+		clear(); 
+		background(backclr);
+		if (zwartweg) {
+			let b = blokken[0];
+			b.x += 0.1;
+			if (b.x>cols+1) {
+				noLoop();
+			}
+		}
+		showPlay(blokken);
+	}
 }
 
 //
@@ -164,24 +245,25 @@ function draw() {
 function wriggleSpace(blk) { 
 	for (let i in blk) { 
 		let b = blk[i]
-		if (b.w==1) { // wriggle y
+		let s = sizes[i];
+		if (s.w==1) { // wriggle y
 			b.xmin = b.x;
 			b.xmax = b.x;
 			b.ymin = b.y-1;
-      while (b.ymin>=0 && [-1,i].includes(getBlokInd(blk,b.x,b.ymin))) b.ymin--;
+			while (b.ymin>=0 && [-1,i].includes(getBlokInd(blk,b.x,b.ymin))) b.ymin--;
 			b.ymin++;
-			b.ymax = b.y+b.h;
+			b.ymax = b.y+s.h;
             while (b.ymax<rows && [-1,i].includes(getBlokInd(blk,b.x,b.ymax))) b.ymax++;
-			b.ymax = b.ymax-b.h;
+			b.ymax = b.ymax-s.h;
 		} else { // wriggle x
 			b.ymin = b.y;
 			b.ymax = b.y;
 			b.xmin = b.x-1;
-      while (b.xmin>=0 && [-1,i].includes(getBlokInd(blk,b.xmin,b.y))) b.xmin--;
+    		while (b.xmin>=0 && [-1,i].includes(getBlokInd(blk,b.xmin,b.y))) b.xmin--;
 			b.xmin++; 
-			b.xmax = b.x+b.w; 
-       while (b.xmax<cols && [-1,i].includes(getBlokInd(blk,b.xmax,b.y))) b.xmax++;
-			b.xmax = b.xmax-b.w;
+			b.xmax = b.x+s.w; 
+    		while (b.xmax<cols && [-1,i].includes(getBlokInd(blk,b.xmax,b.y))) b.xmax++;
+			b.xmax = b.xmax-s.w;
 		}
 	} 
 }
@@ -190,7 +272,8 @@ function wriggleSpace(blk) {
 // DATABASE
 //
 function getBlokInd(blks,x,y) {
-    let i = blks.findIndex(b=>x>=b.x && x<b.x+b.w && y>=b.y && y<b.y+b.h);
+    let i = blks.findIndex((b,ind)=>x>=b.x && x<b.x+sizes[ind].w && 
+									y>=b.y && y<b.y+sizes[ind].h);
     if (i<0) i=-1;
     return i
 }
@@ -200,13 +283,7 @@ function selectGame() {
 	let gnbr = g.slice(4).trim();
 	config = loadini(gnbr);
 	blokken = config.blokken;
-	saveblokken = blokken.map(r=>{
-		let h = {};
-		for (let [k,v] of Object.entries(r)) {
-			h[k] =  v;
-		};
-		return h;
-	});
+	sizes = config.sizes;
 	opnieuw();
 }
 	
@@ -215,7 +292,8 @@ function loadini(gi) {
 	let gat = conf.gate;
     let gatobj = {c:gat[0],r:gat[1],wi:gat[2],he:gat[3]};
     let config = {gat:gatobj}
-    config.blokken = conf.bloks;
+    config.blokken = conf.bloks.map(r=>{return {x:r.x,y:r.y}});
+	config.sizes = conf.bloks.map(r=>{return {w:r.w,h:r.h}});
     return config;
 } // loadini
 
@@ -257,6 +335,20 @@ function mouseDragged() {
 	return false;
 }
 
+function updatelist(seq, ind,bnx,bny,b) {
+	let txtri;
+	let txtva;
+	if (bnx==b.x) {
+		txtri = (bny<b.y)?"U":"D"
+		txtva = Math.abs(bny-b.y)
+	} else {
+		txtri = (bnx<b.x)?"L":"R"
+		txtva = Math.abs(bnx-b.x)
+	}
+	txtstr +=`${seq}-${ind}:${txtri}${txtva}<br>`
+	txt.elt.innerHTML = txtstr; 
+}
+
 function mouseReleased() {
     if (blokselect && blokselect.ind>=0) {
 		showBlok(blokselect.blks,blokselect.ind,true,displ)
@@ -267,17 +359,7 @@ function mouseReleased() {
 		if (!(b.x==bnx && b.y==bny)) {
 			aantalmoves++
 			txtresult.elt.innerHTML = `Number of moves: ${aantalmoves}`
-			let txtri;
-			let txtva;
-			if (bnx==b.x) {
-				txtri = (bny<b.y)?"U":"D"
-				txtva = Math.abs(bny-b.y)
-			} else {
-				txtri = (bnx<b.x)?"L":"R"
-				txtva = Math.abs(bnx-b.x)
-			}
-			txtstr +=`${ind}:${txtri}${txtva}<br>`
-			txt.elt.innerHTML = txtstr; 
+			updatelist(aantalmoves,ind,bnx,bny,b);
 		}
 		b.x = Math.floor(rcx(cx(b.x)+displ.posc.x-displ.poso.x)+0.5);
 		b.y = Math.floor(rcy(cy(b.y)+displ.posc.y-displ.poso.y)+0.5);
@@ -286,7 +368,7 @@ function mouseReleased() {
 		blokselect = null;
 		displ = null;
 		if (ind==0) {
-			if (b.x+b.w==cols) {
+			if (b.x+sizes[ind].w==cols) {
 				zwartweg = true;			
 			}
 		}
