@@ -111,7 +111,7 @@ function draw() {
 			} else {
 				txt.elt.innerHTML = 
 					`Aantal nieuwe configuraties na ${calcresult.value[1]} ` +
-					`steppen is ${calcresult.value[0]}`;
+					`stappen is ${calcresult.value[0]}`;
 				calcresult = calcobject.next();
 			}
 		} else if (calcstatus==2) { // het presenteren van de gegevens
