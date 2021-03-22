@@ -44,6 +44,10 @@ function setup()
 	txt = createP(txtstr); // plek voor logging
 	txt.position(width+10,4*deltaY + offsetY);
 	txt.addClass("txt1");
+
+	txtlink = createA("https://github.com/KeesJohannes/Graphics/tree/master/Games",
+					  "link to source code")
+	txtlink.position(10,height+10);
 	
 	background(backclr);
 	selectGame(); // doet ook de initialisatie 
